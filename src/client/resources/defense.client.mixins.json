@@ -1,0 +1,21 @@
+{
+  "required": true,
+  "package": "net.mortimer_kerman.defense.mixin.client",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "EntityRendererMixin",
+    "GameMenuScreenMixin",
+    "GameOptionsMixin",
+    "HandledScreenAccessor",
+    "InventoryScreenMixin",
+    "ScreenMixin",
+    "SimpleOptionAccessor",
+    "SkinOptionsScreenMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixins": [
+    "PlayerEntityMixin"
+  ]
+}

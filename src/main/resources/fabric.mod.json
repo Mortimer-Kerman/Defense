@@ -1,0 +1,42 @@
+{
+	"schemaVersion": 1,
+	"id": "defense",
+	"version": "${version}",
+	"name": "Defense",
+	"description": "This mod allows players to toggle PVP individually.",
+	"authors": [
+		"Mortimer Kerman"
+	],
+	"contact": {
+		"homepage": "https://mortimer-kerman.github.io/",
+		"sources": "https://github.com/Mortimer-Kerman/Defense"
+	},
+	"license": "MIT",
+	"icon": "assets/defense/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"net.mortimer_kerman.defense.Defense"
+		],
+		"client": [
+			"net.mortimer_kerman.defense.DefenseClient"
+		]
+	},
+	"mixins": [
+		"defense.json",
+		{
+			"config": "defense.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.15.10",
+		"minecraft": "~1.21",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	},
+	"accessWidener" : "defense.accesswidener"
+}
