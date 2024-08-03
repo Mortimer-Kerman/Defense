@@ -1,13 +1,13 @@
 {
   "required": true,
   "package": "net.mortimer_kerman.defense.mixin.client",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_21",
   "client": [
     "EntityRendererMixin",
-    "GameMenuScreenMixin",
     "GameOptionsMixin",
     "HandledScreenAccessor",
     "InventoryScreenMixin",
+    "MinecraftClientMixin",
     "ScreenMixin",
     "SimpleOptionAccessor",
     "SkinOptionsScreenMixin"

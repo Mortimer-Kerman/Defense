@@ -1,9 +1,9 @@
 # Defense
 
 
-<img src="src/main/resources/assets/defense/icon.png" height="200"/>
+<img src="gallery/mod.png" height="200"/>
 
-This mod allows players to toggle PVP individually.
+A mod designed to protect players from unwanted PvP interactions while still allowing PvP on servers!
 
 
 <p align="center">
@@ -16,7 +16,7 @@ This mod adds a button in the survival player inventory.
 
 <img src="gallery/button.png" height="400"/>
 
-When checked on, the player is now immune to all PVP damages, including direct attacks, arrows, TNTs...
+When checked on, the player is now immune to all PVP damages, including direct attacks, arrows, TNTs... and can't damage other players.
 
 <img src="gallery/immune.png" height="400"/>
 
@@ -36,4 +36,4 @@ You can change the icon you are displaying to others in the skin settings.
 
 This mod is open-source and copyrighted under MIT licence. Full license [here](LICENSE).
 
-<img src="src/main/resources/assets/defense/icon.png" height="200"/>
+<img src="gallery/mod.png" height="200"/>

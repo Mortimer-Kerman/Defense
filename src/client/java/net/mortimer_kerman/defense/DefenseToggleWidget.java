@@ -46,7 +46,7 @@ public class DefenseToggleWidget extends TexturedButtonWidget
 
         context.drawGuiTexture(SWITCH_BACKGROUND_TEXTURE, this.getX(), this.getY(), 20, 18);
 
-        int offset = ((PlayerEntityAccess)MinecraftClient.getInstance().player).defense$isPvpOff() ? 8 : 0;
+        int offset = DefenseClient.pvpOff ? 6 : 0;
 
         context.drawGuiTexture(this.isSelected() ? BACKGROUND_HIGHLIGHTED_TEXTURE : BACKGROUND_TEXTURE, this.getX() + offset, this.getY(), 14, 18);
         context.drawGuiTexture(texture, this.getX() + 3 + offset, this.getY() + 5, 8, 9);

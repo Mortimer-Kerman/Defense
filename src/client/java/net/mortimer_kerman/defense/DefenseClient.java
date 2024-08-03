@@ -53,9 +53,18 @@ public class DefenseClient implements ClientModInitializer
 
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) ->
 		{
+			defenseEndTick = 0L;
+			pvpOff = false;
+
 			defenseIconChanged = true;
 			tryRecordIconChange();
 		});
+
+		ClientPlayConnectionEvents.DISCONNECT.register(((handler, client) ->
+		{
+			defenseEndTick = 0L;
+			pvpOff = false;
+		}));
 	}
 
 	/**
@@ -65,7 +74,7 @@ public class DefenseClient implements ClientModInitializer
 	 */
 	public static boolean isPlayerImmune(PlayerEntity player)
 	{
-		if (player == MinecraftClient.getInstance().player) return ((PlayerEntityAccess)player).defense$isPvpOff();
+		if (player == MinecraftClient.getInstance().player) return pvpOff;
 		return immunePlayers.contains(player.getUuid());
 	}
 
@@ -80,21 +89,24 @@ public class DefenseClient implements ClientModInitializer
 	 */
 	public static void tryRecordIconChange()
 	{
-		if(!defenseIconChanged) return;
+		if (!defenseIconChanged) return;
 		MinecraftClient.getInstance().execute(() -> ClientPlayNetworking.send(new Payloads.RecordIconPayload(getDefenseIconOption().getValue().getId())));
 		defenseIconChanged = false;
 	}
 
 	/**
-	 * Gets the defense icon from another player.
-	 * If you want to get the client player icon, you need to use {@code DefenseClient.getDefenseIconOption().getValue()}.
+	 * Gets the defense icon from a player.
 	 * @param player - the player you want to get the icon from
 	 * @return A {@code DefenseIcon}. If the player is not found, {@code DefenseIcon.DEFAULT} is returned.
 	 */
-	public static DefenseIcon getOtherPlayerIcon(PlayerEntity player)
+	public static DefenseIcon getPlayerIcon(PlayerEntity player)
 	{
+		if (player.equals(MinecraftClient.getInstance().player)) return getDefenseIconOption().getValue();
 		return playerIcons.getOrDefault(player.getUuid(), DefenseIcon.DEFAULT);
 	}
+
+	public static long defenseEndTick = 0L;
+	public static boolean pvpOff = false;
 
 	public record DefenseIconCallbacks(List<DefenseIcon> values, Codec<DefenseIcon> codec) implements SimpleOption.CyclingCallbacks<DefenseIcon>
 	{

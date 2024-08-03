@@ -7,6 +7,8 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,6 +20,8 @@ public class Defense implements ModInitializer
 
 	private static final HashSet<UUID> immunePlayers = new HashSet<>();
 	private static final HashMap<UUID, Integer> playerIcons = new HashMap<>();
+
+	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 	@Override
 	public void onInitialize()

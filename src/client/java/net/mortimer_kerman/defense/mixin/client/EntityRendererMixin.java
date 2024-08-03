@@ -34,7 +34,7 @@ public abstract class EntityRendererMixin<T extends Entity>
             float scaleY = 9;
             float offsetY = -0.5f;
             float offsetX = -getTextRenderer().getWidth(text)/2f - scaleX - 4;
-            RenderSystem.setShaderTexture(0, DefenseClient.getOtherPlayerIcon(player).getTexture(false));
+            RenderSystem.setShaderTexture(0, DefenseClient.getPlayerIcon(player).getTexture(false));
             RenderSystem.setShader(GameRenderer::getPositionTexProgram);
             Matrix4f matrix4f = matrices.peek().getPositionMatrix();
             BufferBuilder bufferBuilder = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);

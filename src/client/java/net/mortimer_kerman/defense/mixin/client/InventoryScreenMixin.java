@@ -8,6 +8,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.text.Text;
 
+import net.mortimer_kerman.defense.DefenseClient;
 import net.mortimer_kerman.defense.DefenseToggleWidget;
 import net.mortimer_kerman.defense.interfaces.PlayerEntityAccess;
 
@@ -31,7 +32,7 @@ public abstract class InventoryScreenMixin extends AbstractInventoryScreen<Playe
         if (client.interactionManager.hasCreativeInventory()) return;
         addDrawableChild(new DefenseToggleWidget(this.x + 150, this.height / 2 - 22, this.recipeBook, this, (button) -> {
             PlayerEntityAccess plr = (PlayerEntityAccess)this.client.player;
-            plr.defense$switchPvp(!plr.defense$isPvpOff());
+            plr.defense$switchPvp(!DefenseClient.pvpOff);
             mouseDown = true;
         }));
     }

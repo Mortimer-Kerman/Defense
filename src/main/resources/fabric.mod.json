@@ -23,7 +23,7 @@
 		]
 	},
 	"mixins": [
-		"defense.json",
+		"defense.mixins.json",
 		{
 			"config": "defense.client.mixins.json",
 			"environment": "client"
