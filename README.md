@@ -32,6 +32,10 @@ You can change the icon you are displaying to others in the skin settings.
 
 <img src="gallery/settings.png" height="400"/>
 
+There are many icons available:
+
+<img src="gallery/iconslist.png" height="200"/>
+
 # License and credits
 
 This mod is open-source and copyrighted under MIT licence. Full license [here](LICENSE).
