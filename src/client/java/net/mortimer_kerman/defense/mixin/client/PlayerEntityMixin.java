@@ -42,7 +42,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerEn
     @Inject(method = "tick", at = @At(value = "HEAD"))
     private void onUpdate(CallbackInfo ci)
     {
-        if (!getWorld().isClient || !DefenseClient.pvpOff) return;
+        if (!getWorld().isClient || !DefenseClient.pvpOff || !MinecraftClient.getInstance().player.getUuid().equals(this.getUuid())) return;
 
         long time = getWorld().getTime();
 
