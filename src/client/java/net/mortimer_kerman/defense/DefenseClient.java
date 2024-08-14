@@ -2,26 +2,20 @@ package net.mortimer_kerman.defense;
 
 import com.mojang.serialization.Codec;
 
+import io.netty.buffer.Unpooled;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.networking.v1.ClientLoginNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.CyclingButtonWidget;
-import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.option.SimpleOption;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.screen.ScreenTexts;
-import net.minecraft.text.Text;
-
-import net.mortimer_kerman.defense.interfaces.PlayerEntityAccess;
-import net.mortimer_kerman.defense.mixin.client.SimpleOptionAccessor;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.s2c.login.LoginDisconnectS2CPacket;
 
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.concurrent.CompletableFuture;
 
 public class DefenseClient implements ClientModInitializer
 {
@@ -39,7 +33,7 @@ public class DefenseClient implements ClientModInitializer
 				"options.defense_icon",
 				SimpleOption.emptyTooltip(),
 				SimpleOption.enumValueText(),
-                new DefenseIconCallbacks(Arrays.asList(DefenseIcon.values()), Codec.INT.xmap(DefenseIcon::byId, DefenseIcon::getId)),
+				new SimpleOption.PotentialValuesBasedCallbacks<>(Arrays.asList(DefenseIcon.values()), Codec.INT.xmap(DefenseIcon::byId, DefenseIcon::getId)),
 				DefenseIcon.DEFAULT, (value) -> defenseIconChanged = true);
 
 		ClientPlayNetworking.registerGlobalReceiver(Payloads.NotifyPVPPayload.ID, (payload, context) ->
@@ -65,6 +59,25 @@ public class DefenseClient implements ClientModInitializer
 			defenseEndTick = 0L;
 			pvpOff = false;
 		}));
+
+		ClientLoginNetworking.registerGlobalReceiver(Payloads.handshakeID, (client, handler, buf, callback) ->
+		{
+			int version = buf.readVarInt();
+			if(version > Defense.VERSION_ID)
+			{
+				handler.onDisconnect(new LoginDisconnectS2CPacket(Defense.getServerErrorMessage(Defense.ErrorReason.CLIENT_OLDER)));
+				return CompletableFuture.completedFuture(null);
+			}
+			else if(version < Defense.VERSION_ID)
+			{
+				handler.onDisconnect(new LoginDisconnectS2CPacket(Defense.getServerErrorMessage(Defense.ErrorReason.CLIENT_NEWER)));
+				return CompletableFuture.completedFuture(null);
+			}
+			else
+			{
+				return CompletableFuture.completedFuture(new PacketByteBuf(Unpooled.EMPTY_BUFFER));
+			}
+		});
 	}
 
 	/**
@@ -107,45 +120,4 @@ public class DefenseClient implements ClientModInitializer
 
 	public static long defenseEndTick = 0L;
 	public static boolean pvpOff = false;
-
-	public record DefenseIconCallbacks(List<DefenseIcon> values, Codec<DefenseIcon> codec) implements SimpleOption.CyclingCallbacks<DefenseIcon>
-	{
-        @Override public Optional<DefenseIcon> validate(DefenseIcon value) { return this.values.contains(value) ? Optional.of(value) : Optional.empty(); }
-		@Override public CyclingButtonWidget.Values<DefenseIcon> getValues() { return CyclingButtonWidget.Values.of(this.values); }
-		@Override public Codec<DefenseIcon> codec() { return this.codec; }
-
-		@Override
-		public Function<SimpleOption<DefenseIcon>, ClickableWidget> getWidgetCreator(SimpleOption.TooltipFactory<DefenseIcon> tooltipFactory, GameOptions gameOptions, int x, int y, int width, Consumer<DefenseIcon> changeCallback) {
-			return (option) -> {
-				List<DefenseIcon> list = this.getValues().getDefaults();
-				DefenseIcon value = option.getValue();
-				int initialIndex = 0;
-				int i = list.indexOf(value);
-				if (i != -1) { initialIndex = i; }
-				DefenseIcon object = value != null ? value : list.get(initialIndex);
-
-				Text text = ((SimpleOptionAccessor<DefenseIcon>)(Object)option).getText();
-				Function<DefenseIcon, Text> textGetter = ((SimpleOptionAccessor<DefenseIcon>)(Object)option).getTextGetter();
-
-				Text text2 = ScreenTexts.composeGenericOptionText(text, textGetter.apply(object));
-				return new CyclingButtonWidget<>(x, y, width, 20, (Text) text2, text, initialIndex, object, this.getValues(), textGetter, CyclingButtonWidget::getGenericNarrationMessage, (button, val) -> {
-                    this.valueSetter().set(option, val);
-                    gameOptions.write();
-                    changeCallback.accept(val);
-                }, tooltipFactory, false){
-					@Override
-					protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-						super.renderWidget(context, mouseX, mouseY, delta);
-
-						int posX = getX();
-						int posY = getY();
-						int sizeX = getWidth();
-						int sizeY = getHeight();
-
-						context.drawGuiTexture(getDefenseIconOption().getValue().getTexture(true),posX + sizeX - sizeY + (sizeY/4), posY + (sizeY/4), (int)(sizeY/2.25f), sizeY/2);
-					}
-				};
-			};
-		}
-	}
 }

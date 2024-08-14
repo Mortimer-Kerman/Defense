@@ -16,6 +16,6 @@
     "defaultRequire": 1
   },
   "mixins": [
-    "PlayerEntityMixin"
+    "ClientPlayerEntityMixin"
   ]
 }

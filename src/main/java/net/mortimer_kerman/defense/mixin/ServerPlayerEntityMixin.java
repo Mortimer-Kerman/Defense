@@ -1,9 +1,10 @@
 package net.mortimer_kerman.defense.mixin;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
+import com.mojang.authlib.GameProfile;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import net.mortimer_kerman.defense.Defense;
@@ -13,8 +14,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(PlayerEntity.class)
-public abstract class PlayerEntityMixin extends LivingEntity
+@Mixin(ServerPlayerEntity.class)
+public abstract class ServerPlayerEntityMixin extends PlayerEntity
 {
     @Inject(method = "damage", at = @At(value = "HEAD"), cancellable = true)
     private void onDamaged(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
@@ -25,8 +26,8 @@ public abstract class PlayerEntityMixin extends LivingEntity
 
         if (getWorld().isClient) return;
 
-        if (Defense.isPlayerImmune((PlayerEntity)(Object)this) || Defense.isPlayerImmune(attacker)) cir.setReturnValue(false);
+        if (Defense.isPlayerImmune(this) || Defense.isPlayerImmune(attacker)) cir.setReturnValue(false);
     }
 
-    protected PlayerEntityMixin(EntityType<? extends LivingEntity> entityType, World world) { super(entityType, world); }
+    public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile gameProfile) { super(world, pos, yaw, gameProfile); }
 }

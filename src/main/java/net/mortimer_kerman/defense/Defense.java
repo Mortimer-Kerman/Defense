@@ -1,12 +1,18 @@
 package net.mortimer_kerman.defense;
 
+import io.netty.buffer.Unpooled;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.networking.v1.ServerLoginConnectionEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerLoginNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +23,8 @@ import java.util.UUID;
 public class Defense implements ModInitializer
 {
 	public static final String MOD_ID = "defense";
+	public static final String MOD_VERSION = "1.21-0.2.0";
+	public static final int VERSION_ID = 0;
 
 	private static final HashSet<UUID> immunePlayers = new HashSet<>();
 	private static final HashMap<UUID, Integer> playerIcons = new HashMap<>();
@@ -93,10 +101,45 @@ public class Defense implements ModInitializer
 				}
 			});
 		});
+
+		ServerLoginConnectionEvents.QUERY_START.register((handler, server, sender, synchronizer) ->
+		{
+			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer(5));
+			buf.writeVarInt(VERSION_ID);
+			sender.sendPacket(Payloads.handshakeID, buf);
+		});
+
+		ServerLoginNetworking.registerGlobalReceiver(Payloads.handshakeID, (server, handler, understood, buf, synchronizer, sender) ->
+		{
+			if(!understood)
+			{
+				handler.disconnect(getServerErrorMessage(ErrorReason.MOD_NOT_INSTALLED));
+			}
+		});
 	}
 
 	public static boolean isPlayerImmune(PlayerEntity player)
 	{
 		return immunePlayers.contains(player.getUuid());
+	}
+
+	public static Text getServerErrorMessage(ErrorReason reason)
+	{
+		String desc = switch (reason)
+		{
+            case MOD_NOT_INSTALLED -> "The Defense mod is not installed!";
+            case CLIENT_OLDER -> "You have an outdated version of the Defense mod!";
+            case CLIENT_NEWER -> "You have a too recent version of the Defense mod!";
+        };
+		Text version = Text.literal(MOD_VERSION).styled(style -> style.withUnderline(true));
+		Text url = Text.literal("https://modrinth.com/mod/defense").styled((style -> style.withColor(Formatting.GREEN)));
+		return Text.translatable(desc + " Please download the version %s from %s.", version, url);
+	}
+
+	public enum ErrorReason
+	{
+		MOD_NOT_INSTALLED,
+		CLIENT_OLDER,
+		CLIENT_NEWER
 	}
 }

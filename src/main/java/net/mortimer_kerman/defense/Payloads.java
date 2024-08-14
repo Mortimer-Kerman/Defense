@@ -55,6 +55,8 @@ public class Payloads
         PayloadTypeRegistry.playS2C().register(NotifyIconPayload.ID, NotifyIconPayload.CODEC);
     }
 
+    public static final Identifier handshakeID = Identifier.of(Defense.MOD_ID, "handshake_payload");
+
     public static PacketCodec<io.netty.buffer.ByteBuf, UUID> CODEC_UUID = new PacketCodec<>()
     {
         public UUID decode(ByteBuf byteBuf)

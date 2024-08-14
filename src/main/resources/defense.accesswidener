@@ -1,5 +1,2 @@
 accessWidener v2 named
 accessible class net/minecraft/client/option/GameOptions$Visitor
-accessible class net/minecraft/client/option/SimpleOption$CyclingCallbacks
-accessible method net/minecraft/client/gui/widget/CyclingButtonWidget <init> (IIIILnet/minecraft/text/Text;Lnet/minecraft/text/Text;ILjava/lang/Object;Lnet/minecraft/client/gui/widget/CyclingButtonWidget$Values;Ljava/util/function/Function;Ljava/util/function/Function;Lnet/minecraft/client/gui/widget/CyclingButtonWidget$UpdateCallback;Lnet/minecraft/client/option/SimpleOption$TooltipFactory;Z)V
-

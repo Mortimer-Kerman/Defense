@@ -31,8 +31,9 @@ If a player is immune to PVP, an icon will display next to its nametag:
 You can change the icon you are displaying to others in the skin settings.
 
 <img src="gallery/settings.png" height="400"/>
+<img src="gallery/selector.png" height="400"/>
 
-There are many icons available:
+There are 41 icons available:
 
 <img src="gallery/iconslist.png" height="200"/>
 
