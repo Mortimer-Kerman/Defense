@@ -13,6 +13,7 @@ import net.minecraft.client.option.SimpleOption;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.login.LoginDisconnectS2CPacket;
+import net.mortimer_kerman.defense.interfaces.PlayerEntityAccess;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -60,6 +61,13 @@ public class DefenseClient implements ClientModInitializer
 			pvpOff = false;
 		}));
 
+		ClientPlayNetworking.registerGlobalReceiver(Payloads.EnableAfkPayload.ID, (payload, context) ->
+		{
+			context.client().setScreen(new AFKDefenseScreen(context.client().currentScreen));
+			PlayerEntityAccess plr = (PlayerEntityAccess)context.player();
+			if (!isPlayerImmune(context.player())) plr.defense$switchPvp(true);
+		});
+
 		ClientLoginNetworking.registerGlobalReceiver(Payloads.handshakeID, (client, handler, buf, callback) ->
 		{
 			int version = buf.readVarInt();
@@ -81,7 +89,7 @@ public class DefenseClient implements ClientModInitializer
 	}
 
 	/**
-	 * Checks if a player is immune to PVP
+	 * Checks if a player is immune to PVP.
 	 * @param player - the player you want to check
 	 * @return {@code true} if the player is immune to PVP, {@code false} otherwise.
 	 */
@@ -97,7 +105,7 @@ public class DefenseClient implements ClientModInitializer
 	}
 
 	/**
-	 * If the player has changed its defense icon in the options, this function sends the change to the server.
+	 * If the player has changed its defense icon in the options, this function sends the change to the server. <br>
 	 * Otherwise, it does nothing.
 	 */
 	public static void tryRecordIconChange()
@@ -117,6 +125,35 @@ public class DefenseClient implements ClientModInitializer
 		if (player.equals(MinecraftClient.getInstance().player)) return getDefenseIconOption().getValue();
 		return playerIcons.getOrDefault(player.getUuid(), DefenseIcon.DEFAULT);
 	}
+
+	/**
+	 * Sends a packet to trigger {@code ServerPlayerEntity.updateLastActionTime()} for the current player on the server. <br>
+	 * Please note that the packet can take up to one tick to be sent.
+	 */
+	public static void requestAfkUpdate()
+	{
+		afkUpdateRequested = true;
+	}
+
+	/**
+	 * @return {@code true} if {@code requestAfkUpdate()} was executed in this tick, {@code false} otherwise.
+	 */
+	public static boolean afkUpdateRequested()
+	{
+		return afkUpdateRequested;
+	}
+
+	/**
+	 * Immediatly sends a packet to trigger {@code ServerPlayerEntity.updateLastActionTime()} for the current player on the server. <br>
+	 * It is highly not recommended to use this function, as duplicate packets could be sent. Please use {@code requestAfkUpdate()} instead.
+	 */
+	public static void requestImmediateAfkUpdate()
+	{
+		MinecraftClient.getInstance().execute(() -> ClientPlayNetworking.send(new Payloads.RequestAfkUpdatePayload()));
+		afkUpdateRequested = false;
+	}
+
+	private static boolean afkUpdateRequested = false;
 
 	public static long defenseEndTick = 0L;
 	public static boolean pvpOff = false;

@@ -5,12 +5,9 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.option.FontOptionsScreen;
 import net.minecraft.client.gui.screen.option.GameOptionsScreen;
 import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.DirectionalLayoutWidget;
-import net.minecraft.client.gui.widget.TextWidget;
 import net.minecraft.client.input.KeyCodes;
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.screen.ScreenTexts;
@@ -38,9 +35,7 @@ public class DefenseIconOptionsScreen extends GameOptionsScreen
 
     @Override
     protected void initFooter() {
-        DirectionalLayoutWidget directionalLayoutWidget = this.layout.addFooter(DirectionalLayoutWidget.vertical()).spacing(8);
-        directionalLayoutWidget.getMainPositioner().alignHorizontalCenter();
-        directionalLayoutWidget.add(ButtonWidget.builder(ScreenTexts.DONE, button -> this.onDone()).build());
+        this.layout.addFooter(ButtonWidget.builder(ScreenTexts.DONE, button -> this.onDone()).width(200).build());
     }
 
     @Override
@@ -100,7 +95,7 @@ public class DefenseIconOptionsScreen extends GameOptionsScreen
             @Override
             public void render(DrawContext context, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
                 context.drawCenteredTextWithShadow(DefenseIconOptionsScreen.this.textRenderer, this.iconText, DefenseIconSelectionListWidget.this.width / 2, y + entryHeight / 2 - 9 / 2, Colors.WHITE);
-                context.drawGuiTexture(this.icon.getTexture(true), x + entryWidth - entryHeight + (entryHeight/8), y + (entryHeight/4), (int)(entryHeight/2.25f), entryHeight/2);
+                context.drawGuiTexture(this.icon.getTexture(true), x + entryWidth - (int)(entryHeight*1.2f), y + (int)(entryHeight/5f), (int)(entryHeight/1.35f), (int)(entryHeight/1.2f));
             }
 
             @Override

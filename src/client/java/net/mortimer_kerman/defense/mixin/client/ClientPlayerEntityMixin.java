@@ -45,6 +45,8 @@ public abstract class ClientPlayerEntityMixin extends PlayerEntity implements Pl
     {
         if (!getWorld().isClient || !DefenseClient.pvpOff || !MinecraftClient.getInstance().player.getUuid().equals(this.getUuid())) return;
 
+        if (DefenseClient.afkUpdateRequested()) DefenseClient.requestImmediateAfkUpdate();
+
         long time = getWorld().getTime();
 
         if (time > DefenseClient.defenseEndTick) defense$switchPvp(false);

@@ -28,6 +28,10 @@ If a player is immune to PVP, an icon will display next to its nametag:
 
 <img src="gallery/icon.png" height="400"/>
 
+When a player stays AFK during one minute, the immunity turns on and a screen is displayed to the player:
+
+<img src="gallery/afk.png" height="400"/>
+
 You can change the icon you are displaying to others in the skin settings.
 
 <img src="gallery/settings.png" height="400"/>

@@ -3,7 +3,9 @@
   "package": "net.mortimer_kerman.defense.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "ServerPlayerEntityMixin"
+    "GameruleMixin",
+    "ServerPlayerEntityMixin",
+    "ServerPlayNetworkHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

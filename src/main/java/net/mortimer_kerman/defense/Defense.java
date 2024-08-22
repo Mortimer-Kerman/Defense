@@ -23,11 +23,12 @@ import java.util.UUID;
 public class Defense implements ModInitializer
 {
 	public static final String MOD_ID = "defense";
-	public static final String MOD_VERSION = "1.21-0.2.0";
-	public static final int VERSION_ID = 0;
+	public static final String MOD_VERSION = "1.21-0.3.0-BETA1";
+	public static final int VERSION_ID = 1;
 
 	private static final HashSet<UUID> immunePlayers = new HashSet<>();
 	private static final HashMap<UUID, Integer> playerIcons = new HashMap<>();
+	private static final HashSet<UUID> afkPlayers = new HashSet<>();
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
@@ -53,6 +54,7 @@ public class Defense implements ModInitializer
 			if(immunePlayers.contains(playerUUID))
 			{
 				immunePlayers.remove(playerUUID);
+				afkPlayers.remove(playerUUID);
 				server.execute(() ->
 				{
 					for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList())
@@ -72,7 +74,13 @@ public class Defense implements ModInitializer
 			boolean pvpOff = payload.pvpOff();
 
 			if (pvpOff) immunePlayers.add(playerUUID);
-			else immunePlayers.remove(playerUUID);
+			else
+			{
+				immunePlayers.remove(playerUUID);
+				afkPlayers.remove(playerUUID);
+			}
+
+			sender.updateLastActionTime();
 
 			server.execute(() ->
 			{
@@ -102,6 +110,8 @@ public class Defense implements ModInitializer
 			});
 		});
 
+		ServerPlayNetworking.registerGlobalReceiver(Payloads.RequestAfkUpdatePayload.ID, (payload, context) -> context.player().updateLastActionTime());
+
 		ServerLoginConnectionEvents.QUERY_START.register((handler, server, sender, synchronizer) ->
 		{
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer(5));
@@ -121,6 +131,16 @@ public class Defense implements ModInitializer
 	public static boolean isPlayerImmune(PlayerEntity player)
 	{
 		return immunePlayers.contains(player.getUuid());
+	}
+
+	public static boolean isPlayerAfk(PlayerEntity player)
+	{
+		return afkPlayers.contains(player.getUuid());
+	}
+
+	public static void setPlayerAfk(PlayerEntity player)
+	{
+		afkPlayers.add(player.getUuid());
 	}
 
 	public static Text getServerErrorMessage(ErrorReason reason)

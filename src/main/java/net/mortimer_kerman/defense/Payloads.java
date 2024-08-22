@@ -47,12 +47,30 @@ public class Payloads
         public CustomPayload.Id<? extends CustomPayload> getId() { return ID; }
     }
 
+    public record EnableAfkPayload() implements CustomPayload
+    {
+        public static final CustomPayload.Id<EnableAfkPayload> ID = new CustomPayload.Id<>(Identifier.of(Defense.MOD_ID, "enable_afk_payload"));
+        public static final PacketCodec<RegistryByteBuf, EnableAfkPayload> CODEC = PacketCodec.unit(new EnableAfkPayload());
+        @Override
+        public CustomPayload.Id<? extends CustomPayload> getId() { return ID; }
+    }
+
+    public record RequestAfkUpdatePayload() implements CustomPayload
+    {
+        public static final CustomPayload.Id<RequestAfkUpdatePayload> ID = new CustomPayload.Id<>(Identifier.of(Defense.MOD_ID, "request_afk_update_payload"));
+        public static final PacketCodec<RegistryByteBuf, RequestAfkUpdatePayload> CODEC = PacketCodec.unit(new RequestAfkUpdatePayload());
+        @Override
+        public CustomPayload.Id<? extends CustomPayload> getId() { return ID; }
+    }
+
     public static void RegisterPayloads()
     {
         PayloadTypeRegistry.playC2S().register(RecordPVPPayload.ID, RecordPVPPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(NotifyPVPPayload.ID, NotifyPVPPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(RecordIconPayload.ID, RecordIconPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(NotifyIconPayload.ID, NotifyIconPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(EnableAfkPayload.ID, EnableAfkPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(RequestAfkUpdatePayload.ID, RequestAfkUpdatePayload.CODEC);
     }
 
     public static final Identifier handshakeID = Identifier.of(Defense.MOD_ID, "handshake_payload");

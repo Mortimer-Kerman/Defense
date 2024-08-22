@@ -17,5 +17,7 @@
   "defense_icon.light_0": "Light Level 0",
   "defense_icon.light_15": "Light Level 15",
   "defense_icon.amethyst": "Amethyst",
-  "defense_icon.knarfy_purple": "Knarfy Purple"
+  "defense_icon.knarfy_purple": "Knarfy Purple",
+  "defense.afk_title": "You are AFK!",
+  "defense.afk_desc": "Your defense was activated if it wasn't already on. You can turn off defense and go back to game at any moment."
 }

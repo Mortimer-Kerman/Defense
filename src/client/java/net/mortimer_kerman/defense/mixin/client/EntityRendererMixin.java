@@ -16,6 +16,7 @@ import net.mortimer_kerman.defense.DefenseClient;
 
 import org.joml.Matrix4f;
 
+import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -40,13 +41,28 @@ public abstract class EntityRendererMixin<T extends Entity>
             float offsetY = -0.5f;
             float offsetX = -getTextRenderer().getWidth(text)/2f - scaleX - 4;
 
+            boolean sneaking = player.isSneaky();
+
             RenderSystem.setShaderTexture(0, DefenseClient.getPlayerIcon(player).getTexture(false));
             RenderSystem.setShader(GameRenderer::getPositionTexProgram);
+
+            RenderSystem.setShaderColor(1, 1, 1, 0.5f);
+
+            if(sneaking) RenderSystem.enableBlend();
 
             RenderSystem.enableDepthTest();
             displayDefenseIcon(matrix4f, scaleX, scaleY, offsetY, offsetX);
             RenderSystem.disableDepthTest();
-            if(!player.isSneaky()) displayDefenseIcon(matrix4f, scaleX, scaleY, offsetY, offsetX);
+
+            if(!sneaking)
+            {
+                RenderSystem.enableBlend();
+                displayDefenseIcon(matrix4f, scaleX, scaleY, offsetY, offsetX);
+            }
+
+            RenderSystem.disableBlend();
+
+            RenderSystem.setShaderColor(1, 1, 1, 1);
         }
     }
 
