@@ -43,9 +43,11 @@ public abstract class ClientPlayerEntityMixin extends PlayerEntity implements Pl
     @Inject(method = "tick", at = @At(value = "HEAD"))
     private void onUpdate(CallbackInfo ci)
     {
-        if (!getWorld().isClient || !DefenseClient.pvpOff || !MinecraftClient.getInstance().player.getUuid().equals(this.getUuid())) return;
+        if (!getWorld().isClient) return;
 
         if (DefenseClient.afkUpdateRequested()) DefenseClient.requestImmediateAfkUpdate();
+
+        if (!DefenseClient.pvpOff || !MinecraftClient.getInstance().player.getUuid().equals(this.getUuid())) return;
 
         long time = getWorld().getTime();
 
