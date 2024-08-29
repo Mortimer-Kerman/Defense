@@ -35,7 +35,7 @@
   "gamerule.mountsProtected": "Are mounts protected by Defense",
   "gamerule.afkTimerSeconds": "Time before the Defense AFK screen in multiplayer",
   "gamerule.defenseDurationMinutes": "Defense effect duration",
-  "gamerule.allowDefenseKeybind": "Can the Defense keybind can be used to toggle Defense",
+  "gamerule.allowDefenseKeybind": "Can the Defense keybind be used to toggle Defense",
   "commands.defense.enable.single": "Defense enabled for %s!",
   "commands.defense.enable.multiple": "Defense enabled for %s players!",
   "commands.defense.disable.single": "Defense disabled for %s!",

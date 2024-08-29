@@ -62,13 +62,13 @@ The afk command allows to immediately trigger the afk screen for the player exec
 
 ## Gamerules
 
-| Rule name                | Description                                           | Default value | Type    |
-|--------------------------|-------------------------------------------------------|---------------|---------|
-| `petsProtected`          | Are pets protected by Defense                         | `true`        | Bool    |
-| `mountsProtected`        | Are mounts protected by Defense                       | `true`        | Bool    |
-| `afkTimerSeconds`        | Time before the Defense AFK screen in multiplayer     | `60`          | Integer |
-| `defenseDurationMinutes` | Defense effect duration                               | `20`          | Integer |
-| `allowDefenseKeybind`    | Can the Defense keybind can be used to toggle Defense | `false`       | Bool    |
+| Rule name                | Description                                       | Default value | Type    |
+|--------------------------|---------------------------------------------------|---------------|---------|
+| `petsProtected`          | Are pets protected by Defense                     | `true`        | Bool    |
+| `mountsProtected`        | Are mounts protected by Defense                   | `true`        | Bool    |
+| `afkTimerSeconds`        | Time before the Defense AFK screen in multiplayer | `60`          | Integer |
+| `defenseDurationMinutes` | Defense effect duration                           | `20`          | Integer |
+| `allowDefenseKeybind`    | Can the Defense keybind be used to toggle Defense | `false`       | Bool    |
 
 # License and credits
 
