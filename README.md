@@ -68,7 +68,7 @@ The afk command allows to immediately trigger the afk screen for the player exec
 | `mountsProtected`        | Are mounts protected by Defense                       | `true`        | Bool    |
 | `afkTimerSeconds`        | Time before the Defense AFK screen in multiplayer     | `60`          | Integer |
 | `defenseDurationMinutes` | Defense effect duration                               | `20`          | Integer |
-| `allowDefenseKeybind`    | Whether the players can move their heads horizontally | `false`       | Bool    |
+| `allowDefenseKeybind`    | Can the Defense keybind can be used to toggle Defense | `false`       | Bool    |
 
 # License and credits
 
