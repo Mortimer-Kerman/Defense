@@ -41,6 +41,35 @@ There are 41 icons available:
 
 <img src="gallery/iconslist.png" height="200"/>
 
+## Commands
+
+### /defense
+The defense command allows to modify targeted players' defense.
+#### Syntax:
+- `/defense (on|off|refresh)`
+  Sets the player's defense according to the chosen action with the chosen value. Please note that `refresh` restarts the Defense timer, and `on` does not.
+- `/fov <targets> (on|off|refresh)`
+  Sets the targeted players' defense according to the chosen action with the chosen value. Please note that `refresh` restarts the Defense timer, and `on` does not.
+#### Examples:
+| Command                   | Description                                        |
+|---------------------------|----------------------------------------------------|
+| `/defense off`            | Turns off the player's defense                     |
+| `/defense @a on`          | Turns on the defense of every player on the server |
+| `/defense Knarfy refresh` | Resets Knarfy's defense                            |
+
+### /afk
+The afk command allows to immediately trigger the afk screen for the player executing the command.
+
+## Gamerules
+
+| Rule name                | Description                                           | Default value | Type    |
+|--------------------------|-------------------------------------------------------|---------------|---------|
+| `petsProtected`          | Are pets protected by Defense                         | `true`        | Bool    |
+| `mountsProtected`        | Are mounts protected by Defense                       | `true`        | Bool    |
+| `afkTimerSeconds`        | Time before the Defense AFK screen in multiplayer     | `60`          | Integer |
+| `defenseDurationMinutes` | Defense effect duration                               | `20`          | Integer |
+| `allowDefenseKeybind`    | Whether the players can move their heads horizontally | `false`       | Bool    |
+
 # License and credits
 
 This mod is open-source and copyrighted under MIT licence. Full license [here](LICENSE).

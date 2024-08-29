@@ -63,6 +63,49 @@ public class Payloads
         public CustomPayload.Id<? extends CustomPayload> getId() { return ID; }
     }
 
+    public record NotifyAfkPayload(UUID playerUUID, boolean afk) implements CustomPayload
+    {
+        public static final CustomPayload.Id<NotifyAfkPayload> ID = new CustomPayload.Id<>(Identifier.of(Defense.MOD_ID, "notify_afk_payload"));
+        public static final PacketCodec<RegistryByteBuf, NotifyAfkPayload> CODEC = PacketCodec.tuple(CODEC_UUID, NotifyAfkPayload::playerUUID, PacketCodecs.BOOL, NotifyAfkPayload::afk, NotifyAfkPayload::new);
+        @Override
+        public CustomPayload.Id<? extends CustomPayload> getId() { return ID; }
+    }
+
+    public record ForceDefensePayload(int action) implements CustomPayload
+    {
+        public static final CustomPayload.Id<ForceDefensePayload> ID = new CustomPayload.Id<>(Identifier.of(Defense.MOD_ID, "force_defense_payload"));
+        public static final PacketCodec<RegistryByteBuf, ForceDefensePayload> CODEC = PacketCodec.tuple(PacketCodecs.INTEGER, ForceDefensePayload::action, ForceDefensePayload::new);
+        @Override
+        public CustomPayload.Id<? extends CustomPayload> getId() { return ID; }
+    }
+
+    public static class GamerulePayloads
+    {
+        public record Boolean(String gameruleName, boolean value) implements CustomPayload
+        {
+            public static final CustomPayload.Id<Boolean> ID = new CustomPayload.Id<>(Identifier.of(Defense.MOD_ID, "gamerule_boolean_payload"));
+            public static final PacketCodec<RegistryByteBuf, Boolean> CODEC = PacketCodec.tuple(PacketCodecs.STRING, Boolean::gameruleName, PacketCodecs.BOOL, Boolean::value, Boolean::new);
+            @Override
+            public CustomPayload.Id<? extends CustomPayload> getId() { return ID; }
+        }
+
+        public record Double(String gameruleName, double value) implements CustomPayload
+        {
+            public static final CustomPayload.Id<Double> ID = new CustomPayload.Id<>(Identifier.of(Defense.MOD_ID, "gamerule_double_payload"));
+            public static final PacketCodec<RegistryByteBuf, Double> CODEC = PacketCodec.tuple(PacketCodecs.STRING, Double::gameruleName, PacketCodecs.DOUBLE, Double::value, Double::new);
+            @Override
+            public CustomPayload.Id<? extends CustomPayload> getId() { return ID; }
+        }
+
+        public record Integer(String gameruleName, int value) implements CustomPayload
+        {
+            public static final CustomPayload.Id<Integer> ID = new CustomPayload.Id<>(Identifier.of(Defense.MOD_ID, "gamerule_integer_payload"));
+            public static final PacketCodec<RegistryByteBuf, Integer> CODEC = PacketCodec.tuple(PacketCodecs.STRING, Integer::gameruleName, PacketCodecs.INTEGER, Integer::value, Integer::new);
+            @Override
+            public CustomPayload.Id<? extends CustomPayload> getId() { return ID; }
+        }
+    }
+
     public static void RegisterPayloads()
     {
         PayloadTypeRegistry.playC2S().register(RecordPVPPayload.ID, RecordPVPPayload.CODEC);
@@ -71,6 +114,11 @@ public class Payloads
         PayloadTypeRegistry.playS2C().register(NotifyIconPayload.ID, NotifyIconPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(EnableAfkPayload.ID, EnableAfkPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(RequestAfkUpdatePayload.ID, RequestAfkUpdatePayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(NotifyAfkPayload.ID, NotifyAfkPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(ForceDefensePayload.ID, ForceDefensePayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(GamerulePayloads.Boolean.ID, GamerulePayloads.Boolean.CODEC);
+        PayloadTypeRegistry.playS2C().register(GamerulePayloads.Double.ID, GamerulePayloads.Double.CODEC);
+        PayloadTypeRegistry.playS2C().register(GamerulePayloads.Integer.ID, GamerulePayloads.Integer.CODEC);
     }
 
     public static final Identifier handshakeID = Identifier.of(Defense.MOD_ID, "handshake_payload");

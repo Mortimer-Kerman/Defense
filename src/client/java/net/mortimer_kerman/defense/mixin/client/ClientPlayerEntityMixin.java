@@ -5,40 +5,30 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
 import net.minecraft.text.Texts;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
-import net.mortimer_kerman.defense.CRunnableClickEvent;
-import net.mortimer_kerman.defense.DefenseClient;
-import net.mortimer_kerman.defense.Payloads;
+import net.mortimer_kerman.defense.*;
 import net.mortimer_kerman.defense.interfaces.PlayerEntityAccess;
 
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ClientPlayerEntity.class)
 public abstract class ClientPlayerEntityMixin extends PlayerEntity implements PlayerEntityAccess
 {
-    @Inject(method = "damage", at = @At(value = "HEAD"), cancellable = true)
-    private void onDamaged(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
-    {
-        if (!(source.getAttacker() instanceof PlayerEntity attacker)) return;
-
-        if (attacker.getUuid().equals(this.getUuid())) return;
-
-        if (!getWorld().isClient) return;
-
-        if (DefenseClient.isPlayerImmune(this) || DefenseClient.isPlayerImmune(attacker)) cir.setReturnValue(false);
-    }
+    @Shadow @Final protected MinecraftClient client;
 
     @Inject(method = "tick", at = @At(value = "HEAD"))
     private void onUpdate(CallbackInfo ci)
@@ -47,29 +37,67 @@ public abstract class ClientPlayerEntityMixin extends PlayerEntity implements Pl
 
         if (DefenseClient.afkUpdateRequested()) DefenseClient.requestImmediateAfkUpdate();
 
+        if (!DefenseClient.pvpOff) DefenseClient.durationChange = 0;
         if (!DefenseClient.pvpOff || !MinecraftClient.getInstance().player.getUuid().equals(this.getUuid())) return;
+
+        if (DefenseClient.isAfk) return;
+
+        int durationMinutes = DefenseClient.getDefenseDurationMinutes();
+        long durationTicks = DefenseClient.getDefenseDurationTicks();
 
         long time = getWorld().getTime();
 
-        if (time > DefenseClient.defenseEndTick) defense$switchPvp(false);
-        else if (time == DefenseClient.defenseEndTick - 1200L)
+        if (DefenseClient.durationChange != 0)
         {
-            Text text = Texts.bracketed(Text.translatable("chat.immunity.continue")).styled(style -> style.withColor(Formatting.GREEN).withClickEvent(new CRunnableClickEvent(() -> defense$switchPvp(true))).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.translatable("chat.immunity.continue"))));
-            sendMessage(Text.translatable("chat.immunity.warn", text).styled(style -> style.withColor(Formatting.YELLOW)));
+            Text text = DefenseClient.getDefenseContinueText(this);
+            long leftTimeTick = (durationTicks - (time - DefenseClient.defenseStartTick));
+            int leftTimeMinutes = MathHelper.floor(leftTimeTick/1200D);
+            Text leftTime = Defense.getMinutesText(leftTimeMinutes);
+
+            if (DefenseClient.durationChange < 0)
+            {
+                if(leftTimeTick > 0)
+                {
+                    sendMessage(Text.translatable("chat.immunity.change.shorter", leftTime, text).styled(style -> style.withColor(Formatting.YELLOW)));
+                }
+                else
+                {
+                    sendMessage(Text.translatable("chat.immunity.change.stop", text).styled(style -> style.withColor(Formatting.RED)));
+                }
+            }
+            else if (DefenseClient.durationChange > 0)
+            {
+                sendMessage(Text.translatable("chat.immunity.change.longer", leftTime).styled(style -> style.withColor(Formatting.AQUA)));
+            }
+
+            DefenseClient.durationChange = 0;
         }
 
+        if (time > DefenseClient.defenseStartTick + durationTicks) defense$switchPvp(false);
+        else if (durationMinutes != 1 && time == DefenseClient.defenseStartTick + durationTicks - 1200L)
+        {
+            Text text = DefenseClient.getDefenseContinueText(this);
+            sendMessage(Text.translatable("chat.immunity.warn", text).styled(style -> style.withColor(Formatting.YELLOW)));
+        }
     }
 
     @Override
-    public void defense$switchPvp(boolean pvpOff) {
-        if (pvpOff) DefenseClient.defenseEndTick = getWorld().getTime() + 24000L;
+    public void defense$switchPvp(boolean pvpOff)
+    {
+        int durationMinutes = DefenseClient.getDefenseDurationMinutes();
+
+        if (pvpOff) DefenseClient.defenseStartTick = getWorld().getTime();
         if (DefenseClient.pvpOff != pvpOff)
         {
             MinecraftClient.getInstance().execute(() -> ClientPlayNetworking.send(new Payloads.RecordPVPPayload(pvpOff)));
             DefenseClient.pvpOff = pvpOff;
         }
-        if (pvpOff) sendMessage(Text.translatable("chat.immunity.start").styled((style) -> style.withColor(Formatting.AQUA)));
-        else sendMessage(Text.translatable("chat.immunity.end").styled((style) -> style.withColor(Formatting.RED)));
+
+        if (!DefenseClient.isAfk)
+        {
+            if (pvpOff) sendMessage(Text.translatable("chat.immunity.start", Defense.getMinutesText(durationMinutes)).styled((style) -> style.withColor(Formatting.AQUA)));
+            else sendMessage(Text.translatable("chat.immunity.end").styled((style) -> style.withColor(Formatting.RED)));
+        }
     }
 
     public ClientPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile gameProfile) { super(world, pos, yaw, gameProfile); }

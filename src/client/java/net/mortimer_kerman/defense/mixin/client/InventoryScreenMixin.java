@@ -29,11 +29,14 @@ public abstract class InventoryScreenMixin extends AbstractInventoryScreen<Playe
     @Inject(method = "init", at = @At(value = "TAIL"))
     private void onInit(CallbackInfo ci)
     {
+        if (client == null || client.interactionManager == null) return;
         if (client.interactionManager.hasCreativeInventory()) return;
         addDrawableChild(new DefenseToggleWidget(this.x + 150, this.height / 2 - 22, this.recipeBook, this, (button) -> {
             PlayerEntityAccess plr = (PlayerEntityAccess)this.client.player;
-            plr.defense$switchPvp(!DefenseClient.pvpOff);
             mouseDown = true;
+            if (plr == null) return;
+            if (DefenseClient.getDefenseDurationMinutes() != 0) plr.defense$switchPvp(!DefenseClient.pvpOff);
+            else if (DefenseClient.pvpOff) plr.defense$switchPvp(false);
         }));
     }
 

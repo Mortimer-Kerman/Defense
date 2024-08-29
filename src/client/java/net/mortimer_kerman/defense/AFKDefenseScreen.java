@@ -66,7 +66,9 @@ public class AFKDefenseScreen extends Screen
     public void close()
     {
         this.client.setScreen(this.parent);
+        DefenseClient.isAfk = false;
         PlayerEntityAccess plr = (PlayerEntityAccess)this.client.player;
-        plr.defense$switchPvp(false);
+        plr.defense$switchPvp(true);
+        DefenseClient.requestAfkUpdate();
     }
 }

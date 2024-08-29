@@ -3,8 +3,11 @@ package net.mortimer_kerman.defense.mixin.client;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.AbstractParentElement;
+import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.screen.Screen;
 
+import net.mortimer_kerman.defense.AFKDefenseScreen;
 import net.mortimer_kerman.defense.CRunnableClickEvent;
 
 import net.mortimer_kerman.defense.DefenseClient;
@@ -19,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Screen.class)
-public abstract class ScreenMixin
+public abstract class ScreenMixin extends AbstractParentElement implements Drawable
 {
     @Shadow @Nullable protected MinecraftClient client;
 
@@ -41,6 +44,8 @@ public abstract class ScreenMixin
     private void onTick(CallbackInfo ci)
     {
         if (client == null) return;
+
+        if ((Object)this instanceof AFKDefenseScreen) return;
 
         double posX = client.mouse.getX();
         double posY = client.mouse.getY();

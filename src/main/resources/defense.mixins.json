@@ -4,8 +4,9 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "GameruleMixin",
-    "ServerPlayerEntityMixin",
-    "ServerPlayNetworkHandlerMixin"
+    "LivingEntityMixin",
+    "ServerPlayNetworkHandlerMixin",
+    "VehicleEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1
