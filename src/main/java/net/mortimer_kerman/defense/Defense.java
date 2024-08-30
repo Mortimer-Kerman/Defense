@@ -31,8 +31,8 @@ import java.util.UUID;
 public class Defense implements ModInitializer
 {
 	public static final String MOD_ID = "defense";
-	public static final String MOD_VERSION = "1.21-0.4.0";
-	public static final int VERSION_ID = 3;
+	public static final String MOD_VERSION = "1.21-0.4.1";
+	public static final int VERSION_ID = 4;
 
 	private static final HashSet<UUID> immunePlayers = new HashSet<>();
 	private static final HashMap<UUID, Integer> playerIcons = new HashMap<>();
