@@ -12,7 +12,9 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.mortimer_kerman.defense.DefenseClient;
+import net.mortimer_kerman.defense.RenderLayers;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -49,37 +51,28 @@ public abstract class EntityRendererMixin<T extends Entity>
 
             boolean sneaking = player.isSneaky() || DefenseClient.isPlayerAfk(player.getUuid());
 
-            RenderSystem.setShaderTexture(0, DefenseClient.getPlayerIcon(player).getTexture(false));
-            //RenderSystem.setShader(GameRenderer::getPositionTexProgram);
-            RenderSystem.setShader(GameRenderer::getPositionColorTexLightmapProgram);
+            Identifier texture = DefenseClient.getPlayerIcon(player).getTexture(false);
 
-            /*float lightFactor = (float)Character.digit(Integer.toHexString(light).toUpperCase().charAt(0), 16) / 15.0F;
-            float lightLevel = lightFactor / (4.0F - 3.0F * lightFactor);*/
+            RenderLayer layer;
 
-            if (sneaking) RenderSystem.enableBlend();
-            else RenderSystem.disableBlend();
+            if (sneaking) layer = RenderLayers.getIconTransparentDepth(texture);
+            else layer = RenderLayers.getIconTransparentNoDepth(texture);
 
-            RenderSystem.enableDepthTest();
-            displayDefenseIcon(matrix4f, scaleX, scaleY, offsetY, offsetX, light);
-            RenderSystem.disableDepthTest();
+            displayDefenseIcon(vertexConsumers.getBuffer(layer), matrix4f, scaleX, scaleY, offsetY, offsetX, light);
 
             if(!sneaking)
             {
-                RenderSystem.enableBlend();
-                displayDefenseIcon(matrix4f, scaleX, scaleY, offsetY, offsetX, light);
+                layer = RenderLayers.getIconSolidDepth(texture);
+                displayDefenseIcon(vertexConsumers.getBuffer(layer), matrix4f, scaleX, scaleY, offsetY, offsetX, light);
             }
-
-            RenderSystem.disableBlend();
         }
     }
 
-    @Unique private static void displayDefenseIcon(Matrix4f matrix4f, float scaleX, float scaleY, float offsetY, float offsetX, int light)
+    @Unique private static void displayDefenseIcon(VertexConsumer consumer, Matrix4f matrix4f, float scaleX, float scaleY, float offsetY, float offsetX, int light)
     {
-        BufferBuilder bufferBuilder = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT);
-        bufferBuilder.vertex(matrix4f, scaleX + offsetX,          offsetY, 0).color(1f, 1f, 1f, 0.3f).texture(0.0F, 0.0F).light(light);
-        bufferBuilder.vertex(matrix4f,          offsetX,          offsetY, 0).color(1f, 1f, 1f, 0.3f).texture(1.0F, 0.0F).light(light);
-        bufferBuilder.vertex(matrix4f,          offsetX, scaleY + offsetY, 0).color(1f, 1f, 1f, 0.3f).texture(1.0F, 1.0F).light(light);
-        bufferBuilder.vertex(matrix4f, scaleX + offsetX, scaleY + offsetY, 0).color(1f, 1f, 1f, 0.3f).texture(0.0F, 1.0F).light(light);
-        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
+        consumer.vertex(matrix4f, scaleX + offsetX,          offsetY, 0).color(1f, 1f, 1f, 0.3f).texture(0.0F, 0.0F).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(0,1, 0);
+        consumer.vertex(matrix4f,          offsetX,          offsetY, 0).color(1f, 1f, 1f, 0.3f).texture(1.0F, 0.0F).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(0,1, 0);
+        consumer.vertex(matrix4f,          offsetX, scaleY + offsetY, 0).color(1f, 1f, 1f, 0.3f).texture(1.0F, 1.0F).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(0,1, 0);
+        consumer.vertex(matrix4f, scaleX + offsetX, scaleY + offsetY, 0).color(1f, 1f, 1f, 0.3f).texture(0.0F, 1.0F).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(0,1, 0);
     }
 }

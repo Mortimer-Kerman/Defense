@@ -50,6 +50,8 @@ public class DefenseClient implements ClientModInitializer
 	@Override
 	public void onInitializeClient()
 	{
+		RenderLayers.init();
+
 		defenseKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
 				"key." + Defense.MOD_ID + ".toggleDefense",
 				InputUtil.Type.KEYSYM,
