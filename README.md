@@ -48,7 +48,7 @@ The defense command allows to modify targeted players' defense.
 #### Syntax:
 - `/defense (on|off|refresh)`
   Sets the player's defense according to the chosen action with the chosen value. Please note that `refresh` restarts the Defense timer, and `on` does not.
-- `/fov <targets> (on|off|refresh)`
+- `/defense <targets> (on|off|refresh)`
   Sets the targeted players' defense according to the chosen action with the chosen value. Please note that `refresh` restarts the Defense timer, and `on` does not.
 #### Examples:
 | Command                   | Description                                        |
