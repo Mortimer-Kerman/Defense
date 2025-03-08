@@ -4,7 +4,7 @@ import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
-import net.minecraft.client.MinecraftClient;
+
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.PlayerSkinDrawer;
 import net.minecraft.client.gui.hud.PlayerListHud;
@@ -12,12 +12,12 @@ import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.GameMode;
+
 import net.mortimer_kerman.defense.DefenseClient;
+
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
+
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -27,8 +27,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(PlayerListHud.class)
 public class PlayerListHudMixin
 {
-    @Shadow @Final private MinecraftClient client;
-
     @WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/PlayerSkinDrawer;draw(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/util/Identifier;IIIZZ)V"))
     private boolean onRenderPlayerHead(DrawContext context, Identifier texture, int x, int y, int size, boolean hatVisible, boolean upsideDown)
     {
@@ -40,6 +38,9 @@ public class PlayerListHudMixin
 
     @Unique @Nullable
     private static PlayerListEntry currentEntry = null;
+
+    @Unique
+    private static boolean renderingScoreboard = true;
 
     @ModifyExpressionValue(method = "render", at = @At(value = "INVOKE", target = "Ljava/util/List;get(I)Ljava/lang/Object;"))
     private <E> E retrieveEntry(E obj)
@@ -53,6 +54,10 @@ public class PlayerListHudMixin
     @ModifyExpressionValue(method = "render", at = @At("MIXINEXTRAS:EXPRESSION"))
     private boolean changeNameColorWhite(boolean spectatorMode)
     {
+        renderingScoreboard = !renderingScoreboard;
+
+        if (renderingScoreboard) return spectatorMode;
+
         if (currentEntry != null) return true;
         return spectatorMode;
     }

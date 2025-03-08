@@ -1,8 +1,5 @@
 package net.mortimer_kerman.defense;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.AbstractInventoryScreen;
@@ -15,11 +12,10 @@ import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-
 import net.minecraft.util.math.MathHelper;
+
 import net.mortimer_kerman.defense.mixin.client.HandledScreenAccessor;
 
-@Environment(EnvType.CLIENT)
 public class DefenseToggleWidget extends TexturedButtonWidget
 {
     private static final Identifier SWITCH_BACKGROUND_TEXTURE = Identifier.of(Defense.MOD_ID, "defense_toggle/switch_background");

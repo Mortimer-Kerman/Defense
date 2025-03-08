@@ -1,10 +1,8 @@
 package net.mortimer_kerman.defense.mixin.client;
 
-import com.llamalad7.mixinextras.expression.Definition;
-import com.llamalad7.mixinextras.expression.Expression;
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.llamalad7.mixinextras.sugar.Local;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.entity.EntityRenderer;
@@ -28,13 +26,10 @@ public abstract class EntityRendererMixin<T extends Entity>
 {
     @Shadow public abstract TextRenderer getTextRenderer();
 
-    @Definition(id = "isSneaky", method = "Lnet/minecraft/entity/Entity;isSneaky()Z")
-    @Definition(id = "entity", local = @Local(type = Entity.class, argsOnly = true))
-    @Expression("entity.isSneaky()")
-    @ModifyExpressionValue(method = "renderLabelIfPresent", at = @At(value = "MIXINEXTRAS:EXPRESSION"))
-    private boolean onSneakTest(boolean sneaky, @Local(type = Entity.class, argsOnly = true) Entity entity)
+    @WrapOperation(method = "renderLabelIfPresent", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;isSneaky()Z"))
+    private boolean onSneakTest(Entity entity, Operation<Boolean> original)
     {
-        return sneaky || (entity instanceof PlayerEntity player && DefenseClient.isPlayerAfk(player.getUuid()));
+        return original.call(entity) || (entity instanceof PlayerEntity player && DefenseClient.isPlayerAfk(player.getUuid()));
     }
 
     @Inject(method = "renderLabelIfPresent", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;pop()V", shift = At.Shift.BEFORE))
