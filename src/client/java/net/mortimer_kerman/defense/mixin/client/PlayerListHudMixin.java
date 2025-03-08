@@ -9,6 +9,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.PlayerSkinDrawer;
 import net.minecraft.client.gui.hud.PlayerListHud;
 import net.minecraft.client.network.PlayerListEntry;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.GameMode;
@@ -27,11 +28,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(PlayerListHud.class)
 public class PlayerListHudMixin
 {
-    @WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/PlayerSkinDrawer;draw(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/util/Identifier;IIIZZ)V"))
-    private boolean onRenderPlayerHead(DrawContext context, Identifier texture, int x, int y, int size, boolean hatVisible, boolean upsideDown)
+    @WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/PlayerSkinDrawer;draw(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/util/Identifier;IIIZZI)V"))
+    private boolean onRenderPlayerHead(DrawContext context, Identifier texture, int x, int y, int size, boolean hatVisible, boolean upsideDown, int color)
     {
         if (currentEntry == null || !DefenseClient.isPlayerAfk(currentEntry.getProfile().getId())) return true;
-        PlayerSkinDrawer.draw(context, texture, x, y, size, hatVisible, upsideDown);
+        PlayerSkinDrawer.draw(context, texture, x, y, size, hatVisible, upsideDown, color);
         context.fill(x, y, x + size, y + size, 0x80_00_00_00); //ARGB: a=128, r=0, g=0, b=0
         return false;
     }
@@ -80,7 +81,7 @@ public class PlayerListHudMixin
     private void onRenderLatencyIcon(DrawContext context, int width, int x, int y, PlayerListEntry entry, CallbackInfo ci)
     {
         if (currentEntry == null || !DefenseClient.isPlayerImmune(currentEntry.getProfile().getId())) return;
-        context.drawGuiTexture(DefenseClient.getPlayerIcon(entry.getProfile().getId()).getTexture(true), x + width - 21, y, 8, 9);
+        context.drawGuiTexture(RenderLayer::getGuiTextured, DefenseClient.getPlayerIcon(entry.getProfile().getId()).getTexture(true), x + width - 21, y, 8, 9);
     }
 
     @Definition(id = "min", method = "Ljava/lang/Math;min(II)I")

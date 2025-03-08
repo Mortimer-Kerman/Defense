@@ -6,6 +6,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
 import net.mortimer_kerman.defense.Defense;
 import net.mortimer_kerman.defense.Gamerules;
@@ -19,10 +20,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class LivingEntityMixin extends Entity implements Attackable
 {
     @Inject(method = "damage", at = @At(value = "HEAD"), cancellable = true)
-    private void onDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
+    private void onDamage(ServerWorld world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
     {
         Entity attacker = source.getAttacker();
-        World world = getWorld();
 
         if (attacker == null || world.isClient) return;
 
@@ -57,11 +57,13 @@ public abstract class LivingEntityMixin extends Entity implements Attackable
 
         if (getWorld().isClient || server == null) return;
 
+        ServerWorld serverWorld = (ServerWorld)world;
+
         if(!(this instanceof Tameable pet)) return;
 
         if (target == null || !(pet.getOwner() instanceof PlayerEntity owner) || !(target instanceof PlayerEntity targetPlayer)) return;
 
-        if (world.getGameRules().getBoolean(Gamerules.PETS_PROTECTED) && (Defense.isPlayerImmune(owner) || Defense.isPlayerImmune(targetPlayer)))
+        if (serverWorld.getGameRules().getBoolean(Gamerules.PETS_PROTECTED) && (Defense.isPlayerImmune(owner) || Defense.isPlayerImmune(targetPlayer)))
         {
             cir.setReturnValue(false);
         }

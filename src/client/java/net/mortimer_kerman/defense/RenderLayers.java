@@ -5,6 +5,7 @@ import net.minecraft.client.render.RenderPhase;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.TriState;
 import net.minecraft.util.Util;
 
 import java.util.function.Function;
@@ -30,7 +31,7 @@ public class RenderLayers
             (texture) -> {
                 RenderLayer.MultiPhaseParameters multiPhaseParameters = RenderLayer.MultiPhaseParameters.builder()
                         .program(RenderPhase.ENTITY_CUTOUT_NONULL_PROGRAM)
-                        .texture(new RenderPhase.Texture(texture, false, false))
+                        .texture(new RenderPhase.Texture(texture, TriState.FALSE, false))
                         .transparency(RenderPhase.NO_TRANSPARENCY)
                         .cull(RenderPhase.DISABLE_CULLING)
                         .lightmap(RenderPhase.ENABLE_LIGHTMAP)
@@ -48,8 +49,8 @@ public class RenderLayers
     private static final Function<Identifier, RenderLayer> ICON_TRANSPARENT_DEPTH = Util.memoize(
             (texture) -> {
                 RenderLayer.MultiPhaseParameters multiPhaseParameters = RenderLayer.MultiPhaseParameters.builder()
-                        .program(RenderPhase.ENTITY_TRANSLUCENT_CULL_PROGRAM)
-                        .texture(new RenderPhase.Texture(texture, false, false))
+                        .program(RenderPhase.ITEM_ENTITY_TRANSLUCENT_CULL_PROGRAM)
+                        .texture(new RenderPhase.Texture(texture, TriState.FALSE, false))
                         .transparency(RenderPhase.TRANSLUCENT_TRANSPARENCY)
                         .cull(RenderPhase.ENABLE_CULLING)
                         .lightmap(RenderPhase.ENABLE_LIGHTMAP)
@@ -67,8 +68,8 @@ public class RenderLayers
     private static final Function<Identifier, RenderLayer> ICON_TRANSPARENT_NO_DEPTH = Util.memoize(
             (texture) -> {
                 RenderLayer.MultiPhaseParameters multiPhaseParameters = RenderLayer.MultiPhaseParameters.builder()
-                        .program(RenderPhase.ENTITY_TRANSLUCENT_CULL_PROGRAM)
-                        .texture(new RenderPhase.Texture(texture, false, false))
+                        .program(RenderPhase.ITEM_ENTITY_TRANSLUCENT_CULL_PROGRAM)
+                        .texture(new RenderPhase.Texture(texture, TriState.FALSE, false))
                         .transparency(RenderPhase.TRANSLUCENT_TRANSPARENCY)
                         .cull(RenderPhase.ENABLE_CULLING)
                         .lightmap(RenderPhase.ENABLE_LIGHTMAP)

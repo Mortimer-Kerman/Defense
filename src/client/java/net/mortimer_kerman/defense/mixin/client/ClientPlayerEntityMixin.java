@@ -58,16 +58,16 @@ public abstract class ClientPlayerEntityMixin extends PlayerEntity implements Pl
             {
                 if(leftTimeTick > 0)
                 {
-                    sendMessage(Text.translatable("chat.immunity.change.shorter", leftTime, text).styled(style -> style.withColor(Formatting.YELLOW)));
+                    sendMessage(Text.translatable("chat.immunity.change.shorter", leftTime, text).styled(style -> style.withColor(Formatting.YELLOW)), false);
                 }
                 else
                 {
-                    sendMessage(Text.translatable("chat.immunity.change.stop", text).styled(style -> style.withColor(Formatting.RED)));
+                    sendMessage(Text.translatable("chat.immunity.change.stop", text).styled(style -> style.withColor(Formatting.RED)), false);
                 }
             }
             else if (DefenseClient.durationChange > 0)
             {
-                sendMessage(Text.translatable("chat.immunity.change.longer", leftTime).styled(style -> style.withColor(Formatting.AQUA)));
+                sendMessage(Text.translatable("chat.immunity.change.longer", leftTime).styled(style -> style.withColor(Formatting.AQUA)), false);
             }
 
             DefenseClient.durationChange = 0;
@@ -77,7 +77,7 @@ public abstract class ClientPlayerEntityMixin extends PlayerEntity implements Pl
         else if (durationMinutes != 1 && time == DefenseClient.defenseStartTick + durationTicks - 1200L)
         {
             Text text = DefenseClient.getDefenseContinueText(this);
-            sendMessage(Text.translatable("chat.immunity.warn", text).styled(style -> style.withColor(Formatting.YELLOW)));
+            sendMessage(Text.translatable("chat.immunity.warn", text).styled(style -> style.withColor(Formatting.YELLOW)), false);
         }
     }
 
@@ -95,8 +95,8 @@ public abstract class ClientPlayerEntityMixin extends PlayerEntity implements Pl
 
         if (!DefenseClient.isAfk)
         {
-            if (pvpOff) sendMessage(Text.translatable("chat.immunity.start", Defense.getMinutesText(durationMinutes)).styled((style) -> style.withColor(Formatting.AQUA)));
-            else sendMessage(Text.translatable("chat.immunity.end").styled((style) -> style.withColor(Formatting.RED)));
+            if (pvpOff) sendMessage(Text.translatable("chat.immunity.start", Defense.getMinutesText(durationMinutes)).styled((style) -> style.withColor(Formatting.AQUA)), false);
+            else sendMessage(Text.translatable("chat.immunity.end").styled((style) -> style.withColor(Formatting.RED)), false);
         }
     }
 

@@ -2,11 +2,12 @@ package net.mortimer_kerman.defense;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.ingame.AbstractInventoryScreen;
+import net.minecraft.client.gui.screen.ingame.RecipeBookScreen;
 import net.minecraft.client.gui.screen.recipebook.RecipeBookWidget;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TexturedButtonWidget;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
@@ -23,7 +24,7 @@ public class DefenseToggleWidget extends TexturedButtonWidget
     private static final Identifier BACKGROUND_TEXTURE = Identifier.of(Defense.MOD_ID, "defense_toggle/background");
     private static final Identifier BACKGROUND_HIGHLIGHTED_TEXTURE = Identifier.of(Defense.MOD_ID, "defense_toggle/background_highlighted");
 
-    public DefenseToggleWidget(int x, int y, RecipeBookWidget recipeBook, AbstractInventoryScreen<PlayerScreenHandler> parent, ButtonWidget.PressAction action)
+    public DefenseToggleWidget(int x, int y, RecipeBookWidget recipeBook, RecipeBookScreen<PlayerScreenHandler> parent, ButtonWidget.PressAction action)
     {
         super(x, y, 20, 18, null, action);
         this.recipeBook = recipeBook;
@@ -31,7 +32,7 @@ public class DefenseToggleWidget extends TexturedButtonWidget
     }
 
     private final RecipeBookWidget recipeBook;
-    private final AbstractInventoryScreen<PlayerScreenHandler> parent;
+    private final RecipeBookScreen<PlayerScreenHandler> parent;
     private boolean recipeBookOpen = false;
 
     @Override
@@ -45,7 +46,7 @@ public class DefenseToggleWidget extends TexturedButtonWidget
 
         Identifier texture = DefenseClient.getDefenseIconOption().getValue().getTexture(true);
 
-        context.drawGuiTexture(SWITCH_BACKGROUND_TEXTURE, this.getX(), this.getY(), 20, 18);
+        context.drawGuiTexture(RenderLayer::getGuiTextured, SWITCH_BACKGROUND_TEXTURE, this.getX(), this.getY(), 20, 18);
 
         MinecraftClient client = MinecraftClient.getInstance();
 
@@ -58,7 +59,7 @@ public class DefenseToggleWidget extends TexturedButtonWidget
             long leftTimeTicks = DefenseClient.defenseStartTick + durationTicks - time;
 
             int h = MathHelper.ceil( leftTimeTicks / (double)durationTicks * 17.0F) + 1;
-            context.drawGuiTexture(SWITCH_BACKGROUND_LIGHT_TEXTURE, 20, 18, 0, 18 - h, this.getX(), this.getY() + 18 - h, 20, h);
+            context.drawGuiTexture(RenderLayer::getGuiTextured, SWITCH_BACKGROUND_LIGHT_TEXTURE, 20, 18, 0, 18 - h, this.getX(), this.getY() + 18 - h, 20, h);
 
             int leftTimeMinutes = MathHelper.floor(leftTimeTicks/1200D);
 
@@ -75,7 +76,7 @@ public class DefenseToggleWidget extends TexturedButtonWidget
 
         int offset = DefenseClient.pvpOff ? 6 : 0;
 
-        context.drawGuiTexture(this.isSelected() ? BACKGROUND_HIGHLIGHTED_TEXTURE : BACKGROUND_TEXTURE, this.getX() + offset, this.getY(), 14, 18);
-        context.drawGuiTexture(texture, this.getX() + 3 + offset, this.getY() + 5, 8, 9);
+        context.drawGuiTexture(RenderLayer::getGuiTextured, this.isSelected() ? BACKGROUND_HIGHLIGHTED_TEXTURE : BACKGROUND_TEXTURE, this.getX() + offset, this.getY(), 14, 18);
+        context.drawGuiTexture(RenderLayer::getGuiTextured, texture, this.getX() + 3 + offset, this.getY() + 5, 8, 9);
     }
 }

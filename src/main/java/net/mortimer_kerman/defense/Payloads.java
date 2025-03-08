@@ -18,7 +18,7 @@ public class Payloads
     public record RecordPVPPayload(boolean pvpOff) implements CustomPayload
     {
         public static final CustomPayload.Id<RecordPVPPayload> ID = new CustomPayload.Id<>(Identifier.of(Defense.MOD_ID, "record_pvp_payload"));
-        public static final PacketCodec<RegistryByteBuf, RecordPVPPayload> CODEC = PacketCodec.tuple(PacketCodecs.BOOL, RecordPVPPayload::pvpOff, RecordPVPPayload::new);
+        public static final PacketCodec<RegistryByteBuf, RecordPVPPayload> CODEC = PacketCodec.tuple(PacketCodecs.BOOLEAN, RecordPVPPayload::pvpOff, RecordPVPPayload::new);
         @Override
         public CustomPayload.Id<? extends CustomPayload> getId() { return ID; }
     }
@@ -26,7 +26,7 @@ public class Payloads
     public record NotifyPVPPayload(UUID playerUUID, boolean pvpOff) implements CustomPayload
     {
         public static final CustomPayload.Id<NotifyPVPPayload> ID = new CustomPayload.Id<>(Identifier.of(Defense.MOD_ID, "notify_pvp_payload"));
-        public static final PacketCodec<RegistryByteBuf, NotifyPVPPayload> CODEC = PacketCodec.tuple(CODEC_UUID, NotifyPVPPayload::playerUUID, PacketCodecs.BOOL, NotifyPVPPayload::pvpOff, NotifyPVPPayload::new);
+        public static final PacketCodec<RegistryByteBuf, NotifyPVPPayload> CODEC = PacketCodec.tuple(CODEC_UUID, NotifyPVPPayload::playerUUID, PacketCodecs.BOOLEAN, NotifyPVPPayload::pvpOff, NotifyPVPPayload::new);
         @Override
         public CustomPayload.Id<? extends CustomPayload> getId() { return ID; }
     }
@@ -66,7 +66,7 @@ public class Payloads
     public record NotifyAfkPayload(UUID playerUUID, boolean afk) implements CustomPayload
     {
         public static final CustomPayload.Id<NotifyAfkPayload> ID = new CustomPayload.Id<>(Identifier.of(Defense.MOD_ID, "notify_afk_payload"));
-        public static final PacketCodec<RegistryByteBuf, NotifyAfkPayload> CODEC = PacketCodec.tuple(CODEC_UUID, NotifyAfkPayload::playerUUID, PacketCodecs.BOOL, NotifyAfkPayload::afk, NotifyAfkPayload::new);
+        public static final PacketCodec<RegistryByteBuf, NotifyAfkPayload> CODEC = PacketCodec.tuple(CODEC_UUID, NotifyAfkPayload::playerUUID, PacketCodecs.BOOLEAN, NotifyAfkPayload::afk, NotifyAfkPayload::new);
         @Override
         public CustomPayload.Id<? extends CustomPayload> getId() { return ID; }
     }
@@ -84,7 +84,7 @@ public class Payloads
         public record Boolean(String gameruleName, boolean value) implements CustomPayload
         {
             public static final CustomPayload.Id<Boolean> ID = new CustomPayload.Id<>(Identifier.of(Defense.MOD_ID, "gamerule_boolean_payload"));
-            public static final PacketCodec<RegistryByteBuf, Boolean> CODEC = PacketCodec.tuple(PacketCodecs.STRING, Boolean::gameruleName, PacketCodecs.BOOL, Boolean::value, Boolean::new);
+            public static final PacketCodec<RegistryByteBuf, Boolean> CODEC = PacketCodec.tuple(PacketCodecs.STRING, Boolean::gameruleName, PacketCodecs.BOOLEAN, Boolean::value, Boolean::new);
             @Override
             public CustomPayload.Id<? extends CustomPayload> getId() { return ID; }
         }

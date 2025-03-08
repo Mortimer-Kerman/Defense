@@ -10,6 +10,7 @@ import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.input.KeyCodes;
 import net.minecraft.client.option.GameOptions;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
@@ -39,9 +40,9 @@ public class DefenseIconOptionsScreen extends GameOptionsScreen
     }
 
     @Override
-    protected void initTabNavigation()
+    protected void refreshWidgetPositions()
     {
-        super.initTabNavigation();
+        super.refreshWidgetPositions();
         this.iconSelectionList.position(this.width, this.layout);
     }
 
@@ -95,7 +96,7 @@ public class DefenseIconOptionsScreen extends GameOptionsScreen
             @Override
             public void render(DrawContext context, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
                 context.drawCenteredTextWithShadow(DefenseIconOptionsScreen.this.textRenderer, this.iconText, DefenseIconSelectionListWidget.this.width / 2, y + entryHeight / 2 - 9 / 2, Colors.WHITE);
-                context.drawGuiTexture(this.icon.getTexture(true), x + entryWidth - (int)(entryHeight*1.2f), y + (int)(entryHeight/5f), (int)(entryHeight/1.35f), (int)(entryHeight/1.2f));
+                context.drawGuiTexture(RenderLayer::getGuiTextured, this.icon.getTexture(true), x + entryWidth - (int)(entryHeight*1.2f), y + (int)(entryHeight/5f), (int)(entryHeight/1.35f), (int)(entryHeight/1.2f));
             }
 
             @Override

@@ -4,6 +4,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.vehicle.VehicleEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
 import net.mortimer_kerman.defense.Defense;
 import net.mortimer_kerman.defense.Gamerules;
@@ -16,10 +17,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class VehicleEntityMixin extends Entity
 {
     @Inject(method = "damage", at = @At(value = "HEAD"), cancellable = true)
-    private void onDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
+    private void onDamage(ServerWorld world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
     {
         Entity attacker = source.getAttacker();
-        World world = getWorld();
 
         if (attacker == null || world.isClient) return;
 

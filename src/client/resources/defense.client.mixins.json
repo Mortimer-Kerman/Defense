@@ -5,11 +5,13 @@
   "client": [
     "ClientPlayerEntityMixin",
     "EntityRendererMixin",
+    "EntityRenderStateMixin",
     "GameOptionsMixin",
     "HandledScreenAccessor",
     "InventoryScreenMixin",
     "MinecraftClientMixin",
     "PlayerListHudMixin",
+    "RecipeBookScreenAccessor",
     "ScreenMixin",
     "SimpleOptionAccessor",
     "SkinOptionsScreenMixin"

@@ -29,11 +29,11 @@ public class AFKDefenseScreen extends Screen
     {
         this.textWidget = this.addDrawableChild(new NarratedMultilineTextWidget(this.width, this.desc, this.textRenderer, 12));
         this.buttonWidget = this.addDrawableChild(ButtonWidget.builder(Text.translatable("menu.returnToGame"), button -> this.close()).width(200).build());
-        this.initTabNavigation();
+        this.refreshWidgetPositions();
     }
 
     @Override
-    protected void initTabNavigation()
+    protected void refreshWidgetPositions()
     {
         this.textWidget.initMaxWidth((int)(this.width * 0.8f));
         this.textWidget.setPosition(this.width / 2 - this.textWidget.getWidth() / 2, this.height / 2 - 20);
@@ -49,7 +49,7 @@ public class AFKDefenseScreen extends Screen
     @Override
     public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta)
     {
-        this.applyBlur(delta);
+        this.applyBlur();
         this.renderDarkening(context);
     }
 
