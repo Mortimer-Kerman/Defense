@@ -26,7 +26,7 @@ public abstract class InventoryScreenMixin extends RecipeBookScreen<PlayerScreen
     private void onInit(CallbackInfo ci)
     {
         if (client == null || client.interactionManager == null) return;
-        if (client.interactionManager.hasCreativeInventory()) return;
+        if (client.interactionManager.getCurrentGameMode().isCreative()) return;
         addDrawableChild(new DefenseToggleWidget(this.x + 150, this.height / 2 - 22, ((RecipeBookScreenAccessor)this).getRecipeBook(), this, (button) -> {
             PlayerEntityAccess plr = (PlayerEntityAccess)this.client.player;
             mouseDown = true;

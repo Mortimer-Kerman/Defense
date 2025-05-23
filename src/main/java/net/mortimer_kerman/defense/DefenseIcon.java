@@ -50,7 +50,7 @@ public enum DefenseIcon implements TranslatableOption
     CRIMSON_FUNGUS(39, "block.minecraft.crimson_fungus", "crimson_fungus"),
     KNARFY_PURPLE(40, "defense_icon.knarfy_purple", "knarfy_purple");
 
-    private static final IntFunction<DefenseIcon> BY_ID = ValueLists.createIdToValueFunction(DefenseIcon::getId, values(), ValueLists.OutOfBoundsHandling.WRAP);
+    private static final IntFunction<DefenseIcon> BY_ID = ValueLists.createIndexToValueFunction(DefenseIcon::getId, values(), ValueLists.OutOfBoundsHandling.WRAP);
     private final int id;
     private final String translationKey;
     private final Identifier TEXTURE;

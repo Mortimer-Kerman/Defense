@@ -14,18 +14,16 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.option.SimpleOption;
 import net.minecraft.client.util.InputUtil;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.login.LoginDisconnectS2CPacket;
-import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
 import net.minecraft.text.Texts;
 import net.minecraft.util.Formatting;
-import net.mortimer_kerman.defense.argument.DefenseAction;
 import net.mortimer_kerman.defense.interfaces.PlayerEntityAccess;
+import net.mortimer_kerman.defense.render.DefenseRenderLayers;
+import net.mortimer_kerman.defense.render.DefenseRenderPipelines;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
@@ -50,7 +48,8 @@ public class DefenseClient implements ClientModInitializer
 	@Override
 	public void onInitializeClient()
 	{
-		RenderLayers.init();
+		DefenseRenderPipelines.init();
+		DefenseRenderLayers.init();
 
 		defenseKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
 				"key." + Defense.MOD_ID + ".toggleDefense",
@@ -287,7 +286,7 @@ public class DefenseClient implements ClientModInitializer
 	{
 		int durationMinutes = getDefenseDurationMinutes();
 		Text text = Text.translatable("chat.immunity.continue", Defense.getMinutesText(durationMinutes));
-		return Texts.bracketed(text).styled(style -> style.withColor(Formatting.GREEN).withClickEvent(new CRunnableClickEvent(() -> plr.defense$switchPvp(true))).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, text)));
+		return Texts.bracketed(text).styled(style -> style.withColor(Formatting.GREEN).withClickEvent(new CRunnableClickEvent(() -> plr.defense$switchPvp(true))).withHoverEvent(new HoverEvent.ShowText(text)));
 	}
 
 	private static boolean afkUpdateRequested = false;

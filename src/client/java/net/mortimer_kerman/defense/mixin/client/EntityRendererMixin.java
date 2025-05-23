@@ -13,7 +13,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mortimer_kerman.defense.DefenseClient;
-import net.mortimer_kerman.defense.RenderLayers;
+import net.mortimer_kerman.defense.render.DefenseRenderLayers;
 import net.mortimer_kerman.defense.interfaces.EntityRenderStateMixinAccess;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
@@ -56,14 +56,14 @@ public abstract class EntityRendererMixin<T extends Entity, S extends EntityRend
 
             RenderLayer layer;
 
-            if (sneaking) layer = RenderLayers.getIconTransparentDepth(texture);
-            else layer = RenderLayers.getIconTransparentNoDepth(texture);
+            if (sneaking) layer = DefenseRenderLayers.getIconTransparentDepth(texture);
+            else layer = DefenseRenderLayers.getIconTransparentNoDepth(texture);
 
             displayDefenseIcon(vertexConsumers.getBuffer(layer), matrix4f, scaleX, scaleY, offsetY, offsetX, light);
 
             if(!sneaking)
             {
-                layer = RenderLayers.getIconSolidDepth(texture);
+                layer = DefenseRenderLayers.getIconSolidDepth(texture);
                 displayDefenseIcon(vertexConsumers.getBuffer(layer), matrix4f, scaleX, scaleY, offsetY, offsetX, light);
             }
         }
