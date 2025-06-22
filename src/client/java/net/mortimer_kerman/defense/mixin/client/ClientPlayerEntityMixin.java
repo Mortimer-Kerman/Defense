@@ -6,12 +6,8 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.screen.ScreenTexts;
-import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
-import net.minecraft.text.Texts;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
@@ -100,5 +96,5 @@ public abstract class ClientPlayerEntityMixin extends PlayerEntity implements Pl
         }
     }
 
-    public ClientPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile gameProfile) { super(world, pos, yaw, gameProfile); }
+    public ClientPlayerEntityMixin(World world, GameProfile profile) { super(world, profile); }
 }

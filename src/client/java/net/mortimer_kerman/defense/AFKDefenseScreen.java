@@ -49,17 +49,17 @@ public class AFKDefenseScreen extends Screen
     @Override
     public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta)
     {
-        this.applyBlur();
+        this.applyBlur(context);
         this.renderDarkening(context);
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
-        context.getMatrices().push();
-        context.getMatrices().scale(2.0F, 2.0F, 2.0F);
+        context.getMatrices().pushMatrix();
+        context.getMatrices().scale(2.0F, 2.0F);
         context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 4, this.height / 4 - 35, 16777215);
-        context.getMatrices().pop();
+        context.getMatrices().popMatrix();
     }
 
     @Override

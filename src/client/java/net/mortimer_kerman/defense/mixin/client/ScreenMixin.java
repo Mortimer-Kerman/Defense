@@ -26,8 +26,8 @@ public abstract class ScreenMixin extends AbstractParentElement implements Drawa
 {
     @Shadow @Nullable protected MinecraftClient client;
 
-    @WrapWithCondition(method = "handleTextClick", at = @At(value = "INVOKE", target = "Lorg/slf4j/Logger;error(Ljava/lang/String;Ljava/lang/Object;)V", remap = false))
-    private boolean execute(Logger instance, String s, Object o)
+    @WrapWithCondition(method = "handleBasicClickEvent", at = @At(value = "INVOKE", target = "Lorg/slf4j/Logger;error(Ljava/lang/String;Ljava/lang/Object;)V", remap = false))
+    private static boolean execute(Logger instance, String s, Object o)
     {
         if (!s.equals("Don't know how to handle {}")) return true;
 

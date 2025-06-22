@@ -229,7 +229,7 @@ public class Defense implements ModInitializer
 
 		afkPlayers.add(player.getUuid());
 
-		for (ServerPlayerEntity plr : player.server.getPlayerManager().getPlayerList())
+		for (ServerPlayerEntity plr : player.getServer().getPlayerManager().getPlayerList())
 		{
 			ServerPlayNetworking.send(plr, new Payloads.NotifyAfkPayload(playerUUID, true));
 		}

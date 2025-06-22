@@ -3,7 +3,6 @@ package net.mortimer_kerman.defense.render;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderPhase;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.TriState;
 import net.minecraft.util.Util;
 
 import java.util.function.Function;
@@ -28,7 +27,7 @@ public class DefenseRenderLayers
     private static final Function<Identifier, RenderLayer> ICON_SOLID_DEPTH = Util.memoize(
             texture -> {
                 RenderLayer.MultiPhaseParameters multiPhaseParameters = RenderLayer.MultiPhaseParameters.builder()
-                        .texture(new RenderPhase.Texture(texture, TriState.FALSE, false))
+                        .texture(new RenderPhase.Texture(texture, false))
                         .lightmap(RenderPhase.ENABLE_LIGHTMAP)
                         .overlay(RenderPhase.ENABLE_OVERLAY_COLOR)
                         .build(true);
@@ -39,7 +38,7 @@ public class DefenseRenderLayers
     private static final Function<Identifier, RenderLayer> ICON_TRANSPARENT_DEPTH = Util.memoize(
             (texture) -> {
                 RenderLayer.MultiPhaseParameters multiPhaseParameters = RenderLayer.MultiPhaseParameters.builder()
-                        .texture(new RenderPhase.Texture(texture, TriState.FALSE, false))
+                        .texture(new RenderPhase.Texture(texture, false))
                         .lightmap(RenderPhase.ENABLE_LIGHTMAP)
                         .overlay(RenderPhase.ENABLE_OVERLAY_COLOR)
                         .build(true);
@@ -49,7 +48,7 @@ public class DefenseRenderLayers
     private static final Function<Identifier, RenderLayer> ICON_TRANSPARENT_NO_DEPTH = Util.memoize(
             (texture) -> {
                 RenderLayer.MultiPhaseParameters multiPhaseParameters = RenderLayer.MultiPhaseParameters.builder()
-                        .texture(new RenderPhase.Texture(texture, TriState.FALSE, false))
+                        .texture(new RenderPhase.Texture(texture, false))
                         .lightmap(RenderPhase.ENABLE_LIGHTMAP)
                         .overlay(RenderPhase.ENABLE_OVERLAY_COLOR)
                         .build(true);

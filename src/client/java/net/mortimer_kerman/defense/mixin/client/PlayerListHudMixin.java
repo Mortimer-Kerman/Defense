@@ -5,11 +5,11 @@ import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.PlayerSkinDrawer;
 import net.minecraft.client.gui.hud.PlayerListHud;
 import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.GameMode;
@@ -77,11 +77,11 @@ public class PlayerListHudMixin
         return Colors.WHITE;
     }
 
-    @Inject(method = "renderLatencyIcon", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;pop()V", shift = At.Shift.BEFORE))
+    @Inject(method = "renderLatencyIcon", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/util/Identifier;IIII)V", shift = At.Shift.AFTER))
     private void onRenderLatencyIcon(DrawContext context, int width, int x, int y, PlayerListEntry entry, CallbackInfo ci)
     {
         if (currentEntry == null || !DefenseClient.isPlayerImmune(currentEntry.getProfile().getId())) return;
-        context.drawGuiTexture(RenderLayer::getGuiTextured, DefenseClient.getPlayerIcon(entry.getProfile().getId()).getTexture(true), x + width - 21, y, 8, 9);
+        context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, DefenseClient.getPlayerIcon(entry.getProfile().getId()).getTexture(true), x + width - 21, y, 8, 9);
     }
 
     @Definition(id = "min", method = "Ljava/lang/Math;min(II)I")

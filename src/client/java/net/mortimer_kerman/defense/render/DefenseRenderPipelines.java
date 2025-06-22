@@ -4,11 +4,12 @@ import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.platform.DepthTestFunction;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.gl.RenderPipelines;
 
 public class DefenseRenderPipelines
 {
-    public static final com.mojang.blaze3d.pipeline.RenderPipeline RENDERTYPE_ITEM_ENTITY_TRANSLUCENT_CULL_ALWAYS_DEPTH = net.minecraft.client.gl.RenderPipelines.register(
-            com.mojang.blaze3d.pipeline.RenderPipeline.builder(net.minecraft.client.gl.RenderPipelines.MATRICES_COLOR_FOG_LIGHT_DIR_SNIPPET)
+    public static final com.mojang.blaze3d.pipeline.RenderPipeline RENDERTYPE_ITEM_ENTITY_TRANSLUCENT_CULL_ALWAYS_DEPTH = RenderPipelines.register(
+            com.mojang.blaze3d.pipeline.RenderPipeline.builder(RenderPipelines.TRANSFORMS_PROJECTION_FOG_LIGHTING_SNIPPET)
                     .withLocation("pipeline/item_entity_translucent_cull")
                     .withVertexShader("core/rendertype_item_entity_translucent_cull")
                     .withFragmentShader("core/rendertype_item_entity_translucent_cull")
