@@ -20,8 +20,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(InventoryScreen.class)
 public abstract class InventoryScreenMixin extends RecipeBookScreen<PlayerScreenHandler>
 {
-    @Shadow private boolean mouseDown;
-
     @Inject(method = "init", at = @At(value = "TAIL"))
     private void onInit(CallbackInfo ci)
     {
@@ -29,7 +27,6 @@ public abstract class InventoryScreenMixin extends RecipeBookScreen<PlayerScreen
         if (client.interactionManager.getCurrentGameMode().isCreative()) return;
         addDrawableChild(new DefenseToggleWidget(this.x + 150, this.height / 2 - 22, ((RecipeBookScreenAccessor)this).getRecipeBook(), this, (button) -> {
             PlayerEntityAccess plr = (PlayerEntityAccess)this.client.player;
-            mouseDown = true;
             if (plr == null) return;
             if (DefenseClient.getDefenseDurationMinutes() != 0) plr.defense$switchPvp(!DefenseClient.pvpOff);
             else if (DefenseClient.pvpOff) plr.defense$switchPvp(false);
