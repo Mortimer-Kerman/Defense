@@ -4,10 +4,8 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.command.OrderedRenderCommandQueue;
-import net.minecraft.client.render.command.OrderedRenderCommandQueueImpl;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.render.entity.state.EntityRenderState;
 import net.minecraft.client.render.entity.state.PlayerEntityRenderState;
@@ -16,16 +14,13 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.PlayerLikeEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.StringVisitable;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
 import net.mortimer_kerman.defense.DefenseClient;
 import net.mortimer_kerman.defense.interfaces.EntityRenderStateMixinAccess;
 import net.mortimer_kerman.defense.render.DefenseRenderLayers;
 import org.joml.Matrix4f;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -48,8 +43,6 @@ public abstract class PlayerEntityRendererMixin<T extends Entity, S extends Enti
 
         if(stateAccess.defense$isImmune())
         {
-            //queue.submitLabel(matrices, state.nameLabelPos.add(Vec3d.Y), 0, state.displayName, !state.sneaking, state.light, state.squaredDistanceToCamera, cameraState);
-
             MinecraftClient minecraftClient = MinecraftClient.getInstance();
             matrices.push();
             matrices.translate(state.nameLabelPos.x, state.nameLabelPos.y + 0.5, state.nameLabelPos.z);
@@ -74,19 +67,6 @@ public abstract class PlayerEntityRendererMixin<T extends Entity, S extends Enti
                         getIconRenderer(matrix4f, textWidth, light, -2130706433));
             }
 
-            /*RenderLayer layer;
-
-            if (state.sneaking) layer = DefenseRenderLayers.getIconTransparentDepth(texture);
-            else layer = DefenseRenderLayers.getIconTransparentNoDepth(texture);
-
-            queue.submitCustom(matrices, layer, getIconRenderer(matrix4f, textWidth, light));
-
-            if(!state.sneaking)
-            {
-                layer = DefenseRenderLayers.getIconSolidDepth(texture);
-                queue.submitCustom(matrices, layer, getIconRenderer(matrix4f, textWidth, light));
-            }*/
-
             matrices.pop();
         }
     }
@@ -105,39 +85,6 @@ public abstract class PlayerEntityRendererMixin<T extends Entity, S extends Enti
 
         displayDefenseIcon(vertexConsumer, matrix4f, scaleX, scaleY, offsetY, offsetX, light, color);
     }
-
-    /*@Inject(method = "renderLabelIfPresent", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;pop()V"))
-    private void renderDefenseIcon(S state, Text text, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci)
-    {
-        EntityRenderStateMixinAccess stateAccess = (EntityRenderStateMixinAccess)state;
-
-        if(stateAccess.defense$isImmune())
-        {
-            Matrix4f matrix4f = matrices.peek().getPositionMatrix();
-
-            float scaleX = 8;
-            float scaleY = 9;
-            float offsetY = -0.5f;
-            float offsetX = -getTextRenderer().getWidth(text)/2f - scaleX - 4;
-
-            boolean sneaking = state.sneaking || stateAccess.defense$isAfk();
-
-            Identifier texture = stateAccess.defense$getDefenseTexture();
-
-            RenderLayer layer;
-
-            if (sneaking) layer = DefenseRenderLayers.getIconTransparentDepth(texture);
-            else layer = DefenseRenderLayers.getIconTransparentNoDepth(texture);
-
-            displayDefenseIcon(vertexConsumers.getBuffer(layer), matrix4f, scaleX, scaleY, offsetY, offsetX, light);
-
-            if(!sneaking)
-            {
-                layer = DefenseRenderLayers.getIconSolidDepth(texture);
-                displayDefenseIcon(vertexConsumers.getBuffer(layer), matrix4f, scaleX, scaleY, offsetY, offsetX, light);
-            }
-        }
-    }*/
 
     @Unique private static void displayDefenseIcon(VertexConsumer consumer, Matrix4f matrix4f, float scaleX, float scaleY, float offsetY, float offsetX, int light, int color)
     {
