@@ -36,7 +36,7 @@ public class DefenseToggleWidget extends TexturedButtonWidget
     private boolean recipeBookOpen = false;
 
     @Override
-    public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta)
+    public void drawIcon(DrawContext context, int mouseX, int mouseY, float deltaTicks)
     {
         if (recipeBook.isOpen() != recipeBookOpen)
         {
@@ -64,14 +64,14 @@ public class DefenseToggleWidget extends TexturedButtonWidget
             int leftTimeMinutes = MathHelper.floor(leftTimeTicks/1200D);
 
             this.setTooltip(Tooltip.of(ScreenTexts.joinLines(
-                    Text.translatable("defense.tooltip.on").styled(style -> style.withColor(Formatting.GREEN)),
-                    Text.translatable("defense.tooltip.remaining", Defense.getMinutesText(leftTimeMinutes))
+                    net.minecraft.text.Text.translatable("defense.tooltip.on").styled(style -> style.withColor(Formatting.GREEN)),
+                    net.minecraft.text.Text.translatable("defense.tooltip.remaining", Defense.getMinutesText(leftTimeMinutes))
             )));
         }
-        else if (durationMinutes == 0) this.setTooltip(Tooltip.of(Text.translatable("defense.tooltip.disabled").styled(style -> style.withColor(Formatting.RED))));
+        else if (durationMinutes == 0) this.setTooltip(Tooltip.of(net.minecraft.text.Text.translatable("defense.tooltip.disabled").styled(style -> style.withColor(Formatting.RED))));
         else this.setTooltip(Tooltip.of(ScreenTexts.joinLines(
-                Text.translatable("defense.tooltip.off").styled(style -> style.withColor(Formatting.AQUA)),
-                Text.translatable("defense.tooltip.duration", Defense.getMinutesText(durationMinutes))
+                    net.minecraft.text.Text.translatable("defense.tooltip.off").styled(style -> style.withColor(Formatting.AQUA)),
+                    net.minecraft.text.Text.translatable("defense.tooltip.duration", Defense.getMinutesText(durationMinutes))
         )));
 
         int offset = DefenseClient.pvpOff ? 6 : 0;

@@ -16,8 +16,6 @@ import net.minecraft.world.GameMode;
 
 import net.mortimer_kerman.defense.DefenseClient;
 
-import org.jetbrains.annotations.Nullable;
-
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
@@ -31,13 +29,13 @@ public class PlayerListHudMixin
     @WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/PlayerSkinDrawer;draw(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/util/Identifier;IIIZZI)V"))
     private boolean onRenderPlayerHead(DrawContext context, Identifier texture, int x, int y, int size, boolean hatVisible, boolean upsideDown, int color)
     {
-        if (currentEntry == null || !DefenseClient.isPlayerAfk(currentEntry.getProfile().getId())) return true;
+        if (currentEntry == null || !DefenseClient.isPlayerAfk(currentEntry.getProfile().id())) return true;
         PlayerSkinDrawer.draw(context, texture, x, y, size, hatVisible, upsideDown, color);
         context.fill(x, y, x + size, y + size, 0x80_00_00_00); //ARGB: a=128, r=0, g=0, b=0
         return false;
     }
 
-    @Unique @Nullable
+    @Unique @org.jspecify.annotations.Nullable
     private static PlayerListEntry currentEntry = null;
 
     @Unique
@@ -67,7 +65,7 @@ public class PlayerListHudMixin
     private int changeNameColorGrey(int value)
     {
         if (currentEntry == null) return value;
-        boolean isAfk = DefenseClient.isPlayerAfk(currentEntry.getProfile().getId());
+        boolean isAfk = DefenseClient.isPlayerAfk(currentEntry.getProfile().id());
         if(currentEntry.getGameMode() == GameMode.SPECTATOR)
         {
             if (isAfk) return 1358954495;
@@ -80,8 +78,8 @@ public class PlayerListHudMixin
     @Inject(method = "renderLatencyIcon", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/util/Identifier;IIII)V", shift = At.Shift.AFTER))
     private void onRenderLatencyIcon(DrawContext context, int width, int x, int y, PlayerListEntry entry, CallbackInfo ci)
     {
-        if (currentEntry == null || !DefenseClient.isPlayerImmune(currentEntry.getProfile().getId())) return;
-        context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, DefenseClient.getPlayerIcon(entry.getProfile().getId()).getTexture(true), x + width - 21, y, 8, 9);
+        if (currentEntry == null || !DefenseClient.isPlayerImmune(currentEntry.getProfile().id())) return;
+        context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, DefenseClient.getPlayerIcon(entry.getProfile().id()).getTexture(true), x + width - 21, y, 8, 9);
     }
 
     @Definition(id = "min", method = "Ljava/lang/Math;min(II)I")

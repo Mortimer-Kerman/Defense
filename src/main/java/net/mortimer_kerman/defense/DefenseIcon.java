@@ -1,12 +1,11 @@
 package net.mortimer_kerman.defense;
 
 import net.minecraft.util.Identifier;
-import net.minecraft.util.TranslatableOption;
 import net.minecraft.util.function.ValueLists;
 
 import java.util.function.IntFunction;
 
-public enum DefenseIcon implements TranslatableOption
+public enum DefenseIcon
 {
     DEFAULT(0, "defense_icon.default", "default"),
     IRON(1, "defense_icon.iron", "iron"),

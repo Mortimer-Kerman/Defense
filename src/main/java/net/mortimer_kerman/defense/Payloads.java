@@ -81,26 +81,26 @@ public class Payloads
 
     public static class GamerulePayloads
     {
-        public record Boolean(String gameruleName, boolean value) implements CustomPayload
+        public record Boolean(Identifier gameruleId, boolean value) implements CustomPayload
         {
             public static final CustomPayload.Id<Boolean> ID = new CustomPayload.Id<>(Identifier.of(Defense.MOD_ID, "gamerule_boolean_payload"));
-            public static final PacketCodec<RegistryByteBuf, Boolean> CODEC = PacketCodec.tuple(PacketCodecs.STRING, Boolean::gameruleName, PacketCodecs.BOOLEAN, Boolean::value, Boolean::new);
+            public static final PacketCodec<RegistryByteBuf, Boolean> CODEC = PacketCodec.tuple(Identifier.PACKET_CODEC, Boolean::gameruleId, PacketCodecs.BOOLEAN, Boolean::value, Boolean::new);
             @Override
             public CustomPayload.Id<? extends CustomPayload> getId() { return ID; }
         }
 
-        public record Double(String gameruleName, double value) implements CustomPayload
+        public record Double(Identifier gameruleId, double value) implements CustomPayload
         {
             public static final CustomPayload.Id<Double> ID = new CustomPayload.Id<>(Identifier.of(Defense.MOD_ID, "gamerule_double_payload"));
-            public static final PacketCodec<RegistryByteBuf, Double> CODEC = PacketCodec.tuple(PacketCodecs.STRING, Double::gameruleName, PacketCodecs.DOUBLE, Double::value, Double::new);
+            public static final PacketCodec<RegistryByteBuf, Double> CODEC = PacketCodec.tuple(Identifier.PACKET_CODEC, Double::gameruleId, PacketCodecs.DOUBLE, Double::value, Double::new);
             @Override
             public CustomPayload.Id<? extends CustomPayload> getId() { return ID; }
         }
 
-        public record Integer(String gameruleName, int value) implements CustomPayload
+        public record Integer(Identifier gameruleId, int value) implements CustomPayload
         {
             public static final CustomPayload.Id<Integer> ID = new CustomPayload.Id<>(Identifier.of(Defense.MOD_ID, "gamerule_integer_payload"));
-            public static final PacketCodec<RegistryByteBuf, Integer> CODEC = PacketCodec.tuple(PacketCodecs.STRING, Integer::gameruleName, PacketCodecs.INTEGER, Integer::value, Integer::new);
+            public static final PacketCodec<RegistryByteBuf, Integer> CODEC = PacketCodec.tuple(Identifier.PACKET_CODEC, Integer::gameruleId, PacketCodecs.INTEGER, Integer::value, Integer::new);
             @Override
             public CustomPayload.Id<? extends CustomPayload> getId() { return ID; }
         }

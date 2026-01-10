@@ -21,6 +21,7 @@ import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
 import net.minecraft.text.Texts;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import net.mortimer_kerman.defense.interfaces.PlayerEntityAccess;
 import net.mortimer_kerman.defense.render.DefenseRenderLayers;
 import net.mortimer_kerman.defense.render.DefenseRenderPipelines;
@@ -55,7 +56,7 @@ public class DefenseClient implements ClientModInitializer
 				"key." + Defense.MOD_ID + ".toggleDefense",
 				InputUtil.Type.KEYSYM,
 				GLFW.GLFW_KEY_UNKNOWN,
-				KeyBinding.MULTIPLAYER_CATEGORY
+				KeyBinding.Category.MULTIPLAYER
 		));
 
 		ClientTickEvents.END_CLIENT_TICK.register(client ->
@@ -74,7 +75,7 @@ public class DefenseClient implements ClientModInitializer
 		defenseIconOption = new SimpleOption<>(
 				"options.defense_icon",
 				SimpleOption.emptyTooltip(),
-				SimpleOption.enumValueText(),
+				(optionText, value) -> Text.translatable(value.getTranslationKey()),
 				new SimpleOption.PotentialValuesBasedCallbacks<>(Arrays.asList(DefenseIcon.values()), Codec.INT.xmap(DefenseIcon::byId, DefenseIcon::getId)),
 				DefenseIcon.DEFAULT, (value) -> defenseIconChanged = true);
 
@@ -149,9 +150,9 @@ public class DefenseClient implements ClientModInitializer
 
 		ClientPlayNetworking.registerGlobalReceiver(Payloads.GamerulePayloads.Integer.ID, (payload, context) ->
 		{
-			String gameruleName = payload.gameruleName();
+			Identifier gameruleId = payload.gameruleId();
 
-			if (gameruleName.equals(Gamerules.DEFENSE_DURATION_MINUTES.getName()))
+			if (gameruleId.equals(Gamerules.DEFENSE_DURATION_MINUTES.getId()))
 			{
 				int val = payload.value();
                 durationChange = Integer.compare(val, defenseDurationMinutes);
@@ -162,9 +163,9 @@ public class DefenseClient implements ClientModInitializer
 
 		ClientPlayNetworking.registerGlobalReceiver(Payloads.GamerulePayloads.Boolean.ID, (payload, context) ->
 		{
-			String gameruleName = payload.gameruleName();
+			Identifier gameruleId = payload.gameruleId();
 
-			if (gameruleName.equals(Gamerules.ALLOW_DEFENSE_KEYBIND.getName()))
+			if (gameruleId.equals(Gamerules.ALLOW_DEFENSE_KEYBIND.getId()))
 			{
 				allowDefenseKeybind = payload.value();
 			}
@@ -173,7 +174,7 @@ public class DefenseClient implements ClientModInitializer
 
 	/**
 	 * Checks if a player is immune to PVP.
-	 * @param player - the player you want to check
+	 * @param player the player you want to check
 	 * @return {@code true} if the player is immune to PVP, {@code false} otherwise.
 	 */
 	public static boolean isPlayerImmune(PlayerEntity player)
@@ -183,7 +184,7 @@ public class DefenseClient implements ClientModInitializer
 
 	/**
 	 * Checks if a player is immune to PVP from its UUID.
-	 * @param uuid - the player UUID you want to check
+	 * @param uuid the player UUID you want to check
 	 * @return {@code true} if the player is immune to PVP, {@code false} otherwise.
 	 */
 	public static boolean isPlayerImmune(UUID uuid)
@@ -210,7 +211,7 @@ public class DefenseClient implements ClientModInitializer
 
 	/**
 	 * Gets the defense icon from a player.
-	 * @param player - the player you want to get the icon from
+	 * @param player the player you want to get the icon from
 	 * @return A {@code DefenseIcon}. If the player is not found, {@code DefenseIcon.DEFAULT} is returned.
 	 */
 	public static DefenseIcon getPlayerIcon(PlayerEntity player)
@@ -220,7 +221,7 @@ public class DefenseClient implements ClientModInitializer
 
 	/**
 	 * Gets the defense icon from a player UUID.
-	 * @param player - the player UUID you want to get the icon from
+	 * @param player the player UUID you want to get the icon from
 	 * @return A {@code DefenseIcon}. If the player is not found, {@code DefenseIcon.DEFAULT} is returned.
 	 */
 	public static DefenseIcon getPlayerIcon(UUID player)
@@ -257,8 +258,8 @@ public class DefenseClient implements ClientModInitializer
 	}
 
 	/**
-	 * Gets the AFK status from a player UUID, in the way <i>is-the-defense-afk-screen-displayed</i>.
-	 * @param playerUUID - the player UUID you want to know the AFK status
+	 * Gets the AFK status from a player UUID, in the "<i>is-the-defense-afk-screen-displayed</i>" way.
+	 * @param playerUUID the player UUID you want to know the AFK status
 	 * @return {@code true} if the player is AFK, {@code false} otherwise.
 	 */
 	public static boolean isPlayerAfk(UUID playerUUID)

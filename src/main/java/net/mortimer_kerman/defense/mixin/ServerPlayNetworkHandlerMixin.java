@@ -27,7 +27,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
     @Inject(method = "tick", at = @At(value = "TAIL"))
     private void onTick(CallbackInfo ci)
     {
-        int afkTimer = server.getGameRules().getInt(Gamerules.AFK_TIMER_SECONDS);
+        int afkTimer = server.getOverworld().getGameRules().getValue(Gamerules.AFK_TIMER_SECONDS);
         if (afkTimer == 0) return;
 
         if(player.getLastActionTime() > 0L && Util.getMeasuringTimeMs() - player.getLastActionTime() > (afkTimer * 1000L))

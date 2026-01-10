@@ -3,7 +3,9 @@ package net.mortimer_kerman.defense;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.command.DefaultPermissions;
 import net.minecraft.command.argument.EntityArgumentType;
+import net.minecraft.command.permission.Permission;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -26,7 +28,7 @@ public class Commands
                 )
                 .then(
                         CommandManager.argument("targets", EntityArgumentType.players())
-                                .requires(s -> s.hasPermissionLevel(2))
+                                .requires(s -> s.getPermissions().hasPermission(DefaultPermissions.MODERATORS))
                                 .then(
                                         CommandManager.argument("action", DefenseArgumentType.defenseAction())
                                                 .executes(ctx -> setDefense(ctx.getSource(), EntityArgumentType.getPlayers(ctx, "targets"), DefenseArgumentType.getDefenseAction(ctx, "action")))
@@ -40,7 +42,7 @@ public class Commands
     {
         for (ServerPlayerEntity player : targets)
         {
-            player.getServer().execute(() -> ServerPlayNetworking.send(player, new Payloads.ForceDefensePayload(action.tag)));
+            src.getServer().execute(() -> ServerPlayNetworking.send(player, new Payloads.ForceDefensePayload(action.tag)));
         }
 
         if (action != DefenseAction.OFF)
@@ -66,11 +68,11 @@ public class Commands
 
     private static int setAfk(ServerCommandSource src, ServerPlayerEntity player)
     {
-        MinecraftServer server = player.getServer();
+        MinecraftServer server = src.getServer();
 
         if (server == null) return 0;
 
-        player.getServer().execute(() ->
+        server.execute(() ->
         {
             ServerPlayNetworking.send(player, new Payloads.EnableAfkPayload());
             Defense.setPlayerAfk(player);

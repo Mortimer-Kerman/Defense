@@ -21,12 +21,12 @@ public abstract class VehicleEntityMixin extends Entity
     {
         Entity attacker = source.getAttacker();
 
-        if (attacker == null || world.isClient) return;
+        if (attacker == null || world.isClient()) return;
 
         if (attacker.getUuid().equals(this.getUuid())) return;
 
-        boolean petsProtected = world.getGameRules().getBoolean(Gamerules.PETS_PROTECTED);
-        boolean mountsProtected = world.getGameRules().getBoolean(Gamerules.MOUNTS_PROTECTED);
+        boolean petsProtected = world.getGameRules().getValue(Gamerules.PETS_PROTECTED);
+        boolean mountsProtected = world.getGameRules().getValue(Gamerules.MOUNTS_PROTECTED);
 
         boolean thisImmune = Defense.isEntityImmune(this, petsProtected, mountsProtected);
         boolean thisPlayerRelated = Defense.isPlayerRelated(this, petsProtected, mountsProtected);

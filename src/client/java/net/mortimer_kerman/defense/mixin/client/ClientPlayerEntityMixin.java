@@ -29,7 +29,7 @@ public abstract class ClientPlayerEntityMixin extends PlayerEntity implements Pl
     @Inject(method = "tick", at = @At(value = "HEAD"))
     private void onUpdate(CallbackInfo ci)
     {
-        if (!getWorld().isClient) return;
+        if (!getEntityWorld().isClient()) return;
 
         if (DefenseClient.afkUpdateRequested()) DefenseClient.requestImmediateAfkUpdate();
 
@@ -41,7 +41,7 @@ public abstract class ClientPlayerEntityMixin extends PlayerEntity implements Pl
         int durationMinutes = DefenseClient.getDefenseDurationMinutes();
         long durationTicks = DefenseClient.getDefenseDurationTicks();
 
-        long time = getWorld().getTime();
+        long time = getEntityWorld().getTime();
 
         if (DefenseClient.durationChange != 0)
         {
@@ -82,7 +82,7 @@ public abstract class ClientPlayerEntityMixin extends PlayerEntity implements Pl
     {
         int durationMinutes = DefenseClient.getDefenseDurationMinutes();
 
-        if (pvpOff) DefenseClient.defenseStartTick = getWorld().getTime();
+        if (pvpOff) DefenseClient.defenseStartTick = getEntityWorld().getTime();
         if (DefenseClient.pvpOff != pvpOff)
         {
             MinecraftClient.getInstance().execute(() -> ClientPlayNetworking.send(new Payloads.RecordPVPPayload(pvpOff)));

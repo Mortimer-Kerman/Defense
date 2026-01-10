@@ -11,8 +11,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.GameRuleCommand;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.world.GameRules;
+import net.minecraft.util.Identifier;
 
+import net.minecraft.world.rule.GameRule;
 import net.mortimer_kerman.defense.Gamerules;
 import net.mortimer_kerman.defense.Payloads;
 
@@ -25,16 +26,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class GameruleMixin
 {
     @Inject(at = @At("HEAD"), method = "executeSet")
-    private static <T extends GameRules.Rule<T>> void sendGamerule(CommandContext<ServerCommandSource> context, GameRules.Key<T> key, CallbackInfoReturnable<Integer> cir)
+    private static <T extends GameRule<T>> void sendGamerule(CommandContext<ServerCommandSource> context, GameRule<T> key, CallbackInfoReturnable<Integer> cir)
     {
         MinecraftServer server = context.getSource().getServer();
 
         Gamerules.Type type;
 
-        String gameruleName = key.getName();
+        Identifier gameruleId = key.getId();
 
-        if (gameruleName.equals(Gamerules.DEFENSE_DURATION_MINUTES.getName())) type = Gamerules.Type.INTEGER;
-        else if (gameruleName.equals(Gamerules.ALLOW_DEFENSE_KEYBIND.getName())) type = Gamerules.Type.BOOLEAN;
+        if (gameruleId.equals(Gamerules.DEFENSE_DURATION_MINUTES.getId())) type = Gamerules.Type.INTEGER;
+        else if (gameruleId.equals(Gamerules.ALLOW_DEFENSE_KEYBIND.getId())) type = Gamerules.Type.BOOLEAN;
         else return;
 
         switch (type)
@@ -45,7 +46,7 @@ public abstract class GameruleMixin
 
                 for(ServerPlayerEntity player : server.getPlayerManager().getPlayerList())
                 {
-                    server.execute(() -> ServerPlayNetworking.send(player, new Payloads.GamerulePayloads.Boolean(gameruleName, value)));
+                    server.execute(() -> ServerPlayNetworking.send(player, new Payloads.GamerulePayloads.Boolean(gameruleId, value)));
                 }
             }
             case DOUBLE ->
@@ -54,7 +55,7 @@ public abstract class GameruleMixin
 
                 for(ServerPlayerEntity player : server.getPlayerManager().getPlayerList())
                 {
-                    server.execute(() -> ServerPlayNetworking.send(player, new Payloads.GamerulePayloads.Double(gameruleName, value)));
+                    server.execute(() -> ServerPlayNetworking.send(player, new Payloads.GamerulePayloads.Double(gameruleId, value)));
                 }
             }
             case INTEGER ->
@@ -63,7 +64,7 @@ public abstract class GameruleMixin
 
                 for(ServerPlayerEntity player : server.getPlayerManager().getPlayerList())
                 {
-                    server.execute(() -> ServerPlayNetworking.send(player, new Payloads.GamerulePayloads.Integer(gameruleName, value)));
+                    server.execute(() -> ServerPlayNetworking.send(player, new Payloads.GamerulePayloads.Integer(gameruleId, value)));
                 }
             }
         }

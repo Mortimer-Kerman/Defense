@@ -1,17 +1,37 @@
 package net.mortimer_kerman.defense;
 
-import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
-import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
-import net.minecraft.world.GameRules;
+import net.fabricmc.fabric.api.gamerule.v1.GameRuleBuilder;
+import net.minecraft.world.rule.GameRule;
+import net.minecraft.world.rule.GameRuleCategory;
 
 public class Gamerules
 {
-    public static final GameRules.Key<GameRules.BooleanRule> PETS_PROTECTED = GameRuleRegistry.register("petsProtected", GameRules.Category.MOBS, GameRuleFactory.createBooleanRule(true));
-    public static final GameRules.Key<GameRules.BooleanRule> MOUNTS_PROTECTED = GameRuleRegistry.register("mountsProtected", GameRules.Category.MOBS, GameRuleFactory.createBooleanRule(true));
-    public static final GameRules.Key<GameRules.IntRule> AFK_TIMER_SECONDS = GameRuleRegistry.register("afkTimerSeconds", GameRules.Category.PLAYER, GameRuleFactory.createIntRule(60, 0));
-    public static final GameRules.Key<GameRules.IntRule> DEFENSE_DURATION_MINUTES = GameRuleRegistry.register("defenseDurationMinutes", GameRules.Category.PLAYER, GameRuleFactory.createIntRule(20, 0));
-    public static final GameRules.Key<GameRules.BooleanRule> ALLOW_DEFENSE_KEYBIND = GameRuleRegistry.register("allowDefenseKeybind", GameRules.Category.PLAYER, GameRuleFactory.createBooleanRule(false));
+    public static final GameRule<Boolean> PETS_PROTECTED = GameRuleBuilder
+            .forBoolean(true)
+            .category(GameRuleCategory.MOBS)
+            .buildAndRegister(Defense.idOf("pets_protected"));
 
+    public static final GameRule<Boolean> MOUNTS_PROTECTED = GameRuleBuilder
+            .forBoolean(true)
+            .category(GameRuleCategory.MOBS)
+            .buildAndRegister(Defense.idOf("mounts_protected"));
+
+    public static final GameRule<Integer> AFK_TIMER_SECONDS = GameRuleBuilder
+            .forInteger(60)
+            .minValue(0)
+            .category(GameRuleCategory.PLAYER)
+            .buildAndRegister(Defense.idOf("afk_timer_seconds"));
+
+    public static final GameRule<Integer> DEFENSE_DURATION_MINUTES = GameRuleBuilder
+            .forInteger(20)
+            .minValue(0)
+            .category(GameRuleCategory.PLAYER)
+            .buildAndRegister(Defense.idOf("defense_duration_minutes"));
+
+    public static final GameRule<Boolean> ALLOW_DEFENSE_KEYBIND = GameRuleBuilder
+            .forBoolean(false)
+            .category(GameRuleCategory.PLAYER)
+            .buildAndRegister(Defense.idOf("allow_defense_keybind"));
 
     public enum Type
     {

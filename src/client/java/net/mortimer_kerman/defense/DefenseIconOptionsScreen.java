@@ -4,17 +4,17 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.RenderPipelines;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.option.GameOptionsScreen;
 import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.input.KeyCodes;
+import net.minecraft.client.input.KeyInput;
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
-import net.minecraft.util.Util;
 
 public class DefenseIconOptionsScreen extends GameOptionsScreen
 {
@@ -90,40 +90,42 @@ public class DefenseIconOptionsScreen extends GameOptionsScreen
             public IconEntry(final DefenseIcon icon)
             {
                 this.icon = icon;
-                this.iconText = icon.getText();
+                this.iconText = Text.translatable(icon.getTranslationKey());
             }
 
             @Override
-            public void render(DrawContext context, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
+            public void render(DrawContext context, int mouseX, int mouseY, boolean hovered, float deltaTicks) {
+                int entryWidth = getContentWidth();
+                int entryHeight = getContentHeight();
+                int x = getContentX();
+                int y = getContentY();
                 context.drawCenteredTextWithShadow(DefenseIconOptionsScreen.this.textRenderer, this.iconText, DefenseIconSelectionListWidget.this.width / 2, y + entryHeight / 2 - 9 / 2, Colors.WHITE);
                 context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, this.icon.getTexture(true), x + entryWidth - (int)(entryHeight*1.2f), y + (int)(entryHeight/5f), (int)(entryHeight/1.35f), (int)(entryHeight/1.2f));
             }
 
             @Override
-            public boolean keyPressed(int keyCode, int scanCode, int modifiers)
+            public boolean keyPressed(KeyInput input)
             {
-                if (KeyCodes.isToggle(keyCode))
+                if (input.isEnterOrSpace())
                 {
                     this.onPressed();
                     DefenseIconOptionsScreen.this.onDone();
                     return true;
                 }
 
-                return super.keyPressed(keyCode, scanCode, modifiers);
+                return super.keyPressed(input);
             }
 
             @Override
-            public boolean mouseClicked(double mouseX, double mouseY, int button)
-            {
+            public boolean mouseClicked(Click click, boolean doubled) {
+
                 this.onPressed();
 
-                if (Util.getMeasuringTimeMs() - this.clickTime < 250L)
+                if (doubled)
                 {
                     DefenseIconOptionsScreen.this.onDone();
                 }
-
-                this.clickTime = Util.getMeasuringTimeMs();
-                return super.mouseClicked(mouseX, mouseY, button);
+                return super.mouseClicked(click, doubled);
             }
 
             private void onPressed() { DefenseIconSelectionListWidget.this.setSelected(this); }

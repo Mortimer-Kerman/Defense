@@ -20,9 +20,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.world.rule.GameRules;
 import net.mortimer_kerman.defense.argument.DefenseArgumentType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,8 +36,6 @@ public class Defense implements ModInitializer
 	private static final HashSet<UUID> immunePlayers = new HashSet<>();
 	private static final HashMap<UUID, Integer> playerIcons = new HashMap<>();
 	private static final HashSet<UUID> afkPlayers = new HashSet<>();
-
-	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 	@Override
 	public void onInitialize()
@@ -56,13 +53,14 @@ public class Defense implements ModInitializer
 		{
 			ServerPlayerEntity player = handler.getPlayer();
 
-			int defenseDurationMinutes = server.getGameRules().getInt(Gamerules.DEFENSE_DURATION_MINUTES);
-			boolean allowDefenseKeybind = server.getGameRules().getBoolean(Gamerules.ALLOW_DEFENSE_KEYBIND);
+			GameRules gameRules = server.getOverworld().getGameRules();
+			int defenseDurationMinutes = gameRules.getValue(Gamerules.DEFENSE_DURATION_MINUTES);
+			boolean allowDefenseKeybind = gameRules.getValue(Gamerules.ALLOW_DEFENSE_KEYBIND);
 
 			server.execute(() ->
 			{
-				ServerPlayNetworking.send(player, new Payloads.GamerulePayloads.Integer(Gamerules.DEFENSE_DURATION_MINUTES.getName(), defenseDurationMinutes));
-				ServerPlayNetworking.send(player, new Payloads.GamerulePayloads.Boolean(Gamerules.ALLOW_DEFENSE_KEYBIND.getName(), allowDefenseKeybind));
+				ServerPlayNetworking.send(player, new Payloads.GamerulePayloads.Integer(Gamerules.DEFENSE_DURATION_MINUTES.getId(), defenseDurationMinutes));
+				ServerPlayNetworking.send(player, new Payloads.GamerulePayloads.Boolean(Gamerules.ALLOW_DEFENSE_KEYBIND.getId(), allowDefenseKeybind));
 
 				for (UUID playerUUID : immunePlayers) ServerPlayNetworking.send(player, new Payloads.NotifyPVPPayload(playerUUID, true));
 				for (UUID playerUUID : afkPlayers) ServerPlayNetworking.send(player, new Payloads.NotifyAfkPayload(playerUUID, true));
@@ -229,7 +227,7 @@ public class Defense implements ModInitializer
 
 		afkPlayers.add(player.getUuid());
 
-		for (ServerPlayerEntity plr : player.getServer().getPlayerManager().getPlayerList())
+		for (ServerPlayerEntity plr : player.getEntityWorld().getServer().getPlayerManager().getPlayerList())
 		{
 			ServerPlayNetworking.send(plr, new Payloads.NotifyAfkPayload(playerUUID, true));
 		}
@@ -260,5 +258,9 @@ public class Defense implements ModInitializer
 		MOD_NOT_INSTALLED,
 		CLIENT_OLDER,
 		CLIENT_NEWER
+	}
+
+	public static Identifier idOf(String path) {
+		return Identifier.of(MOD_ID, path);
 	}
 }

@@ -6,7 +6,7 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.NarratedMultilineTextWidget;
 import net.minecraft.text.*;
 import net.mortimer_kerman.defense.interfaces.PlayerEntityAccess;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class AFKDefenseScreen extends Screen
 {
@@ -27,7 +27,7 @@ public class AFKDefenseScreen extends Screen
     @Override
     protected void init()
     {
-        this.textWidget = this.addDrawableChild(new NarratedMultilineTextWidget(this.width, this.desc, this.textRenderer, 12));
+        this.textWidget = this.addDrawableChild(NarratedMultilineTextWidget.builder(this.desc, this.textRenderer, 12).width(this.width).build());
         this.buttonWidget = this.addDrawableChild(ButtonWidget.builder(Text.translatable("menu.returnToGame"), button -> this.close()).width(200).build());
         this.refreshWidgetPositions();
     }
@@ -35,7 +35,7 @@ public class AFKDefenseScreen extends Screen
     @Override
     protected void refreshWidgetPositions()
     {
-        this.textWidget.initMaxWidth((int)(this.width * 0.8f));
+        this.textWidget.setMaxWidth((int)(this.width * 0.8f));
         this.textWidget.setPosition(this.width / 2 - this.textWidget.getWidth() / 2, this.height / 2 - 20);
         this.buttonWidget.setPosition(this.width / 2 - this.buttonWidget.getWidth() / 2, this.height / 2 + 30);
     }

@@ -4,7 +4,7 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "ClientPlayerEntityMixin",
-    "EntityRendererMixin",
+    "PlayerEntityRendererMixin",
     "EntityRenderStateMixin",
     "GameOptionsMixin",
     "HandledScreenAccessor",

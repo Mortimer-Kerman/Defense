@@ -21,12 +21,12 @@ public abstract class LivingEntityMixin extends Entity implements Attackable
     {
         Entity attacker = source.getAttacker();
 
-        if (attacker == null || world.isClient) return;
+        if (attacker == null || world.isClient()) return;
 
         if (attacker.getUuid().equals(this.getUuid())) return;
 
-        boolean petsProtected = world.getGameRules().getBoolean(Gamerules.PETS_PROTECTED);
-        boolean mountsProtected = world.getGameRules().getBoolean(Gamerules.MOUNTS_PROTECTED);
+        boolean petsProtected = world.getGameRules().getValue(Gamerules.PETS_PROTECTED);
+        boolean mountsProtected = world.getGameRules().getValue(Gamerules.MOUNTS_PROTECTED);
 
         boolean thisImmune = Defense.isEntityImmune(this, petsProtected, mountsProtected);
         boolean thisPlayerRelated = Defense.isPlayerRelated(this, petsProtected, mountsProtected);
@@ -49,10 +49,10 @@ public abstract class LivingEntityMixin extends Entity implements Attackable
     @Inject(method = "canTarget(Lnet/minecraft/entity/LivingEntity;)Z", at = @At(value = "HEAD"), cancellable = true)
     private void onTarget(LivingEntity target, CallbackInfoReturnable<Boolean> cir)
     {
-        World world = getWorld();
+        World world = getEntityWorld();
         MinecraftServer server = world.getServer();
 
-        if (getWorld().isClient || server == null) return;
+        if (world.isClient() || server == null) return;
 
         ServerWorld serverWorld = (ServerWorld)world;
 
@@ -60,7 +60,7 @@ public abstract class LivingEntityMixin extends Entity implements Attackable
 
         if (target == null || !(pet.getOwner() instanceof PlayerEntity owner) || !(target instanceof PlayerEntity targetPlayer)) return;
 
-        if (serverWorld.getGameRules().getBoolean(Gamerules.PETS_PROTECTED) && (Defense.isPlayerImmune(owner) || Defense.isPlayerImmune(targetPlayer)))
+        if (serverWorld.getGameRules().getValue(Gamerules.PETS_PROTECTED) && (Defense.isPlayerImmune(owner) || Defense.isPlayerImmune(targetPlayer)))
         {
             cir.setReturnValue(false);
         }
