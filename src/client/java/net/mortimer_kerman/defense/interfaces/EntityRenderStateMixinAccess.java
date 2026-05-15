@@ -1,6 +1,6 @@
 package net.mortimer_kerman.defense.interfaces;
 
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 
 public interface EntityRenderStateMixinAccess
 {

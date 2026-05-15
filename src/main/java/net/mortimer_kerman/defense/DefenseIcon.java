@@ -1,7 +1,7 @@
 package net.mortimer_kerman.defense;
 
-import net.minecraft.util.Identifier;
-import net.minecraft.util.function.ValueLists;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.ByIdMap;
 
 import java.util.function.IntFunction;
 
@@ -49,7 +49,7 @@ public enum DefenseIcon
     CRIMSON_FUNGUS(39, "block.minecraft.crimson_fungus", "crimson_fungus"),
     KNARFY_PURPLE(40, "defense_icon.knarfy_purple", "knarfy_purple");
 
-    private static final IntFunction<DefenseIcon> BY_ID = ValueLists.createIndexToValueFunction(DefenseIcon::getId, values(), ValueLists.OutOfBoundsHandling.WRAP);
+    private static final IntFunction<DefenseIcon> BY_ID = ByIdMap.continuous(DefenseIcon::getId, values(), ByIdMap.OutOfBoundsStrategy.WRAP);
     private final int id;
     private final String translationKey;
     private final Identifier TEXTURE;
@@ -59,8 +59,8 @@ public enum DefenseIcon
     {
         this.id = id;
         this.translationKey = translationKey;
-        this.TEXTURE = Identifier.of(Defense.MOD_ID, "textures/gui/sprites/defense_toggle/" + texId + ".png");
-        this.TEXTURE_GUI = Identifier.of(Defense.MOD_ID, "defense_toggle/" + texId);
+        this.TEXTURE = Identifier.fromNamespaceAndPath(Defense.MOD_ID, "textures/gui/sprites/defense_toggle/" + texId + ".png");
+        this.TEXTURE_GUI = Identifier.fromNamespaceAndPath(Defense.MOD_ID, "defense_toggle/" + texId);
     }
 
     public int getId()

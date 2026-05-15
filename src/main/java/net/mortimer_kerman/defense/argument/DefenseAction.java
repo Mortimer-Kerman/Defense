@@ -1,9 +1,9 @@
 package net.mortimer_kerman.defense.argument;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.StringRepresentable;
 
-public enum DefenseAction implements StringIdentifiable
+public enum DefenseAction implements StringRepresentable
 {
     ON("on", 0),
     OFF("off", 1),
@@ -16,11 +16,11 @@ public enum DefenseAction implements StringIdentifiable
     DefenseAction(String id, int tag) { this.id = id; this.tag = tag; }
 
     @Override
-    public String asString() {
+    public String getSerializedName() {
         return this.id;
     }
 
     static {
-        CODEC = StringIdentifiable.createCodec(DefenseAction::values);
+        CODEC = StringRepresentable.fromEnum(DefenseAction::values);
     }
 }

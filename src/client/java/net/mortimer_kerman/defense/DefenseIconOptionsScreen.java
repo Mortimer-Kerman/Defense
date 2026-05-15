@@ -2,70 +2,71 @@ package net.mortimer_kerman.defense;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.option.GameOptionsScreen;
-import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.client.option.GameOptions;
-import net.minecraft.screen.ScreenTexts;
-import net.minecraft.text.Text;
-import net.minecraft.util.Colors;
 
-public class DefenseIconOptionsScreen extends GameOptionsScreen
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.Options;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.options.OptionsSubScreen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.CommonColors;
+
+public class DefenseIconOptionsScreen extends OptionsSubScreen
 {
     private DefenseIconSelectionListWidget iconSelectionList;
 
-    public DefenseIconOptionsScreen(Screen parent, GameOptions options)
+    public DefenseIconOptionsScreen(Screen parent, Options options)
     {
-        super(parent, options, Text.translatable("options.defense_icon.title"));
+        super(parent, options, Component.translatable("options.defense_icon.title"));
     }
 
     @Override
-    protected void initBody()
+    protected void addContents()
     {
-        this.iconSelectionList = this.layout.addBody(new DefenseIconSelectionListWidget(this.client));
+        this.iconSelectionList = this.layout.addToContents(new DefenseIconSelectionListWidget(this.minecraft));
     }
 
     @Override
     protected void addOptions() { }
 
     @Override
-    protected void initFooter() {
-        this.layout.addFooter(ButtonWidget.builder(ScreenTexts.DONE, button -> this.onDone()).width(200).build());
+    protected void addFooter() {
+        this.layout.addToFooter(Button.builder(CommonComponents.GUI_DONE, button -> this.onDone()).width(200).build());
     }
 
     @Override
-    protected void refreshWidgetPositions()
+    protected void repositionElements()
     {
-        super.refreshWidgetPositions();
-        this.iconSelectionList.position(this.width, this.layout);
+        super.repositionElements();
+        this.iconSelectionList.updateSize(this.width, this.layout);
     }
 
     void onDone()
     {
-        DefenseIconSelectionListWidget.IconEntry iconEntry = this.iconSelectionList.getSelectedOrNull();
+        DefenseIconSelectionListWidget.IconEntry iconEntry = this.iconSelectionList.getSelected();
 
-        if (iconEntry != null && !iconEntry.icon.equals(DefenseClient.getDefenseIconOption().getValue()))
+        if (iconEntry != null && !iconEntry.icon.equals(DefenseClient.getDefenseIconOption().get()))
         {
-            DefenseClient.getDefenseIconOption().setValue(iconEntry.icon);
+            DefenseClient.getDefenseIconOption().set(iconEntry.icon);
         }
 
-        this.client.setScreen(this.parent);
+        this.minecraft.setScreen(this.lastScreen);
     }
 
     @Environment(EnvType.CLIENT)
-    class DefenseIconSelectionListWidget extends AlwaysSelectedEntryListWidget<DefenseIconSelectionListWidget.IconEntry>
+    class DefenseIconSelectionListWidget extends ObjectSelectionList<DefenseIconSelectionListWidget.IconEntry>
     {
-        public DefenseIconSelectionListWidget(final MinecraftClient client)
+        public DefenseIconSelectionListWidget(final Minecraft client)
         {
             super(client, DefenseIconOptionsScreen.this.width, DefenseIconOptionsScreen.this.height - 33 - 53, 33, 18);
 
-            DefenseIcon current = DefenseClient.getDefenseIconOption().getValue();
+            DefenseIcon current = DefenseClient.getDefenseIconOption().get();
 
             for(DefenseIcon icon : DefenseIcon.values())
             {
@@ -74,39 +75,39 @@ public class DefenseIconOptionsScreen extends GameOptionsScreen
                 if (current.equals(icon)) this.setSelected(iconEntry);
             }
 
-            if (this.getSelectedOrNull() != null) this.centerScrollOn(this.getSelectedOrNull());
+            if (this.getSelected() != null) this.centerScrollOn(this.getSelected());
         }
 
         @Override
         public int getRowWidth() { return super.getRowWidth() + 50; }
 
         @Environment(EnvType.CLIENT)
-        public class IconEntry extends AlwaysSelectedEntryListWidget.Entry<IconEntry>
+        public class IconEntry extends ObjectSelectionList.Entry<IconEntry>
         {
             final DefenseIcon icon;
-            private final Text iconText;
+            private final Component iconText;
             private long clickTime;
 
             public IconEntry(final DefenseIcon icon)
             {
                 this.icon = icon;
-                this.iconText = Text.translatable(icon.getTranslationKey());
+                this.iconText = Component.translatable(icon.getTranslationKey());
             }
 
             @Override
-            public void render(DrawContext context, int mouseX, int mouseY, boolean hovered, float deltaTicks) {
+            public void renderContent(GuiGraphics context, int mouseX, int mouseY, boolean hovered, float deltaTicks) {
                 int entryWidth = getContentWidth();
                 int entryHeight = getContentHeight();
                 int x = getContentX();
                 int y = getContentY();
-                context.drawCenteredTextWithShadow(DefenseIconOptionsScreen.this.textRenderer, this.iconText, DefenseIconSelectionListWidget.this.width / 2, y + entryHeight / 2 - 9 / 2, Colors.WHITE);
-                context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, this.icon.getTexture(true), x + entryWidth - (int)(entryHeight*1.2f), y + (int)(entryHeight/5f), (int)(entryHeight/1.35f), (int)(entryHeight/1.2f));
+                context.drawCenteredString(DefenseIconOptionsScreen.this.font, this.iconText, DefenseIconSelectionListWidget.this.width / 2, y + entryHeight / 2 - 9 / 2, CommonColors.WHITE);
+                context.blitSprite(RenderPipelines.GUI_TEXTURED, this.icon.getTexture(true), x + entryWidth - (int)(entryHeight*1.2f), y + (int)(entryHeight/5f), (int)(entryHeight/1.35f), (int)(entryHeight/1.2f));
             }
 
             @Override
-            public boolean keyPressed(KeyInput input)
+            public boolean keyPressed(KeyEvent input)
             {
-                if (input.isEnterOrSpace())
+                if (input.isSelection())
                 {
                     this.onPressed();
                     DefenseIconOptionsScreen.this.onDone();
@@ -117,7 +118,7 @@ public class DefenseIconOptionsScreen extends GameOptionsScreen
             }
 
             @Override
-            public boolean mouseClicked(Click click, boolean doubled) {
+            public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
 
                 this.onPressed();
 
@@ -131,7 +132,7 @@ public class DefenseIconOptionsScreen extends GameOptionsScreen
             private void onPressed() { DefenseIconSelectionListWidget.this.setSelected(this); }
 
             @Override
-            public Text getNarration() { return Text.translatable("narrator.select", this.iconText); }
+            public Component getNarration() { return Component.translatable("narrator.select", this.iconText); }
         }
     }
 }

@@ -1,13 +1,15 @@
 package net.mortimer_kerman.defense.mixin.client;
 
-import net.minecraft.client.gui.screen.ingame.RecipeBookScreen;
-import net.minecraft.client.gui.screen.recipebook.RecipeBookWidget;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(RecipeBookScreen.class)
-public interface RecipeBookScreenAccessor
+import net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
+import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
+import net.minecraft.world.inventory.RecipeBookMenu;
+
+@Mixin(AbstractRecipeBookScreen.class)
+public interface RecipeBookScreenAccessor<T extends RecipeBookMenu>
 {
     @Accessor
-    RecipeBookWidget<?> getRecipeBook();
+    RecipeBookComponent<T> getRecipeBookComponent();
 }

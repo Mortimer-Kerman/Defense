@@ -1,32 +1,34 @@
 package net.mortimer_kerman.defense.mixin;
 
-import net.minecraft.entity.*;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.World;
-import net.mortimer_kerman.defense.Defense;
-import net.mortimer_kerman.defense.Gamerules;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+
+import net.mortimer_kerman.defense.Defense;
+import net.mortimer_kerman.defense.Gamerules;
+
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity implements Attackable
 {
-    @Inject(method = "damage", at = @At(value = "HEAD"), cancellable = true)
-    private void onDamage(ServerWorld world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
+    @Inject(method = "hurtServer", at = @At(value = "HEAD"), cancellable = true)
+    private void onDamage(ServerLevel world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
     {
-        Entity attacker = source.getAttacker();
+        Entity attacker = source.getEntity();
 
-        if (attacker == null || world.isClient()) return;
+        if (attacker == null || world.isClientSide()) return;
 
-        if (attacker.getUuid().equals(this.getUuid())) return;
+        if (attacker.getUUID().equals(this.getUUID())) return;
 
-        boolean petsProtected = world.getGameRules().getValue(Gamerules.PETS_PROTECTED);
-        boolean mountsProtected = world.getGameRules().getValue(Gamerules.MOUNTS_PROTECTED);
+        boolean petsProtected = world.getGameRules().get(Gamerules.PETS_PROTECTED);
+        boolean mountsProtected = world.getGameRules().get(Gamerules.MOUNTS_PROTECTED);
 
         boolean thisImmune = Defense.isEntityImmune(this, petsProtected, mountsProtected);
         boolean thisPlayerRelated = Defense.isPlayerRelated(this, petsProtected, mountsProtected);
@@ -46,25 +48,25 @@ public abstract class LivingEntityMixin extends Entity implements Attackable
         if ((thisImmune && attackerPlayerRelated) || (thisPlayerRelated && attackerImmune)) cir.setReturnValue(false);
     }
 
-    @Inject(method = "canTarget(Lnet/minecraft/entity/LivingEntity;)Z", at = @At(value = "HEAD"), cancellable = true)
+    @Inject(method = "canAttack(Lnet/minecraft/world/entity/LivingEntity;)Z", at = @At(value = "HEAD"), cancellable = true)
     private void onTarget(LivingEntity target, CallbackInfoReturnable<Boolean> cir)
     {
-        World world = getEntityWorld();
+        Level world = level();
         MinecraftServer server = world.getServer();
 
-        if (world.isClient() || server == null) return;
+        if (world.isClientSide() || server == null) return;
 
-        ServerWorld serverWorld = (ServerWorld)world;
+        ServerLevel serverWorld = (ServerLevel)world;
 
-        if(!(this instanceof Tameable pet)) return;
+        if(!(this instanceof OwnableEntity pet)) return;
 
-        if (target == null || !(pet.getOwner() instanceof PlayerEntity owner) || !(target instanceof PlayerEntity targetPlayer)) return;
+        if (target == null || !(pet.getOwner() instanceof Player owner) || !(target instanceof Player targetPlayer)) return;
 
-        if (serverWorld.getGameRules().getValue(Gamerules.PETS_PROTECTED) && (Defense.isPlayerImmune(owner) || Defense.isPlayerImmune(targetPlayer)))
+        if (serverWorld.getGameRules().get(Gamerules.PETS_PROTECTED) && (Defense.isPlayerImmune(owner) || Defense.isPlayerImmune(targetPlayer)))
         {
             cir.setReturnValue(false);
         }
     }
 
-    public LivingEntityMixin(EntityType<?> type, World world) { super(type, world); }
+    public LivingEntityMixin(EntityType<?> type, Level world) { super(type, world); }
 }

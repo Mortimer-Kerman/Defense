@@ -1,39 +1,41 @@
 package net.mortimer_kerman.defense;
 
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.NarratedMultilineTextWidget;
-import net.minecraft.text.*;
-import net.mortimer_kerman.defense.interfaces.PlayerEntityAccess;
 import org.jspecify.annotations.Nullable;
+
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.FocusableTextWidget;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+
+import net.mortimer_kerman.defense.interfaces.PlayerEntityAccess;
 
 public class AFKDefenseScreen extends Screen
 {
-    private final Text desc;
+    private final Component desc;
 
-    private NarratedMultilineTextWidget textWidget;
-    private ButtonWidget buttonWidget;
+    private FocusableTextWidget textWidget;
+    private Button buttonWidget;
 
     private final Screen parent;
 
     public AFKDefenseScreen(@Nullable Screen parent)
     {
-        super(Text.translatable("defense.afk_title").styled(style -> style.withBold(true)));
+        super(Component.translatable("defense.afk_title").withStyle(style -> style.withBold(true)));
         this.parent = parent;
-        this.desc = Text.translatable("defense.afk_desc");
+        this.desc = Component.translatable("defense.afk_desc");
     }
 
     @Override
     protected void init()
     {
-        this.textWidget = this.addDrawableChild(NarratedMultilineTextWidget.builder(this.desc, this.textRenderer, 12).width(this.width).build());
-        this.buttonWidget = this.addDrawableChild(ButtonWidget.builder(Text.translatable("menu.returnToGame"), button -> this.close()).width(200).build());
-        this.refreshWidgetPositions();
+        this.textWidget = this.addRenderableWidget(FocusableTextWidget.builder(this.desc, this.font, 12).maxWidth(this.width).build());
+        this.buttonWidget = this.addRenderableWidget(Button.builder(Component.translatable("menu.returnToGame"), button -> this.onClose()).width(200).build());
+        this.repositionElements();
     }
 
     @Override
-    protected void refreshWidgetPositions()
+    protected void repositionElements()
     {
         this.textWidget.setMaxWidth((int)(this.width * 0.8f));
         this.textWidget.setPosition(this.width / 2 - this.textWidget.getWidth() / 2, this.height / 2 - 20);
@@ -41,33 +43,33 @@ public class AFKDefenseScreen extends Screen
     }
 
     @Override
-    protected boolean hasUsageText()
+    protected boolean shouldNarrateNavigation()
     {
         return false;
     }
 
     @Override
-    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta)
+    public void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta)
     {
-        this.applyBlur(context);
-        this.renderDarkening(context);
+        this.renderBlurredBackground(context);
+        this.renderMenuBackground(context);
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
-        context.getMatrices().pushMatrix();
-        context.getMatrices().scale(2.0F, 2.0F);
-        context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 4, this.height / 4 - 35, 16777215);
-        context.getMatrices().popMatrix();
+        context.pose().pushMatrix();
+        context.pose().scale(2.0F, 2.0F);
+        context.drawCenteredString(this.font, this.title, this.width / 4, this.height / 4 - 35, 16777215);
+        context.pose().popMatrix();
     }
 
     @Override
-    public void close()
+    public void onClose()
     {
-        this.client.setScreen(this.parent);
+        this.minecraft.setScreen(this.parent);
         DefenseClient.isAfk = false;
-        PlayerEntityAccess plr = (PlayerEntityAccess)this.client.player;
+        PlayerEntityAccess plr = (PlayerEntityAccess)this.minecraft.player;
         plr.defense$switchPvp(true);
         DefenseClient.requestAfkUpdate();
     }

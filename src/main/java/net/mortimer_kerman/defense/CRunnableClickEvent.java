@@ -1,6 +1,8 @@
 package net.mortimer_kerman.defense;
 
-import net.minecraft.text.ClickEvent;
+import org.jetbrains.annotations.NotNull;
+
+import net.minecraft.network.chat.ClickEvent;
 
 public class CRunnableClickEvent implements ClickEvent
 {
@@ -17,7 +19,8 @@ public class CRunnableClickEvent implements ClickEvent
     }
 
     @Override
-    public Action getAction() {
+    @NotNull
+    public Action action() {
         return Action.RUN_COMMAND;
     }
 }

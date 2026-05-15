@@ -4,16 +4,15 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "ClientPlayerEntityMixin",
-    "PlayerEntityRendererMixin",
     "EntityRenderStateMixin",
     "GameOptionsMixin",
     "HandledScreenAccessor",
     "InventoryScreenMixin",
     "MinecraftClientMixin",
+    "PlayerEntityRendererMixin",
     "PlayerListHudMixin",
     "RecipeBookScreenAccessor",
     "ScreenMixin",
-    "SimpleOptionAccessor",
     "SkinOptionsScreenMixin"
   ],
   "injectors": {

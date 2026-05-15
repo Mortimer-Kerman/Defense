@@ -1,8 +1,8 @@
 package net.mortimer_kerman.defense;
 
-import com.mojang.serialization.Codec;
-
 import io.netty.buffer.Unpooled;
+import org.lwjgl.glfw.GLFW;
+
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -10,24 +10,28 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientLoginNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.option.SimpleOption;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.s2c.login.LoginDisconnectS2CPacket;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.Text;
-import net.minecraft.text.Texts;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
+import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.serialization.Codec;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.OptionInstance;
+import net.minecraft.network.DisconnectionDetails;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentUtils;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.player.Player;
+
 import net.mortimer_kerman.defense.interfaces.PlayerEntityAccess;
 import net.mortimer_kerman.defense.render.DefenseRenderLayers;
 import net.mortimer_kerman.defense.render.DefenseRenderPipelines;
-import org.lwjgl.glfw.GLFW;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class DefenseClient implements ClientModInitializer
@@ -36,14 +40,14 @@ public class DefenseClient implements ClientModInitializer
 	private static final HashMap<UUID, DefenseIcon> playerIcons = new HashMap<>();
 	private static final HashSet<UUID> afkPlayers = new HashSet<>();
 
-	private static SimpleOption<DefenseIcon> defenseIconOption;
+	private static OptionInstance<DefenseIcon> defenseIconOption;
 
 	private static boolean defenseIconChanged = false;
 
 	private static int defenseDurationMinutes = 20;
 	private static boolean allowDefenseKeybind = false;
 
-	private static KeyBinding defenseKey;
+	private static KeyMapping defenseKey;
 	private static boolean defensePressed = false;
 
 	@Override
@@ -52,31 +56,31 @@ public class DefenseClient implements ClientModInitializer
 		DefenseRenderPipelines.init();
 		DefenseRenderLayers.init();
 
-		defenseKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+		defenseKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
 				"key." + Defense.MOD_ID + ".toggleDefense",
-				InputUtil.Type.KEYSYM,
+				InputConstants.Type.KEYSYM,
 				GLFW.GLFW_KEY_UNKNOWN,
-				KeyBinding.Category.MULTIPLAYER
+				KeyMapping.Category.MULTIPLAYER
 		));
 
 		ClientTickEvents.END_CLIENT_TICK.register(client ->
 		{
-			if (defenseKey.isPressed())
+			if (defenseKey.isDown())
 			{
 				if (!defensePressed)
 				{
-					if (allowDefenseKeybind) ((PlayerEntityAccess)MinecraftClient.getInstance().player).defense$switchPvp(!pvpOff);
+					if (allowDefenseKeybind) ((PlayerEntityAccess)Minecraft.getInstance().player).defense$switchPvp(!pvpOff);
 					defensePressed = true;
 				}
 			}
 			else defensePressed = false;
 		});
 
-		defenseIconOption = new SimpleOption<>(
+		defenseIconOption = new OptionInstance<>(
 				"options.defense_icon",
-				SimpleOption.emptyTooltip(),
-				(optionText, value) -> Text.translatable(value.getTranslationKey()),
-				new SimpleOption.PotentialValuesBasedCallbacks<>(Arrays.asList(DefenseIcon.values()), Codec.INT.xmap(DefenseIcon::byId, DefenseIcon::getId)),
+				OptionInstance.noTooltip(),
+				(optionText, value) -> Component.translatable(value.getTranslationKey()),
+				new OptionInstance.Enum<>(Arrays.asList(DefenseIcon.values()), Codec.INT.xmap(DefenseIcon::byId, DefenseIcon::getId)),
 				DefenseIcon.DEFAULT, (value) -> defenseIconChanged = true);
 
 		ClientPlayNetworking.registerGlobalReceiver(Payloads.NotifyPVPPayload.ID, (payload, context) ->
@@ -105,7 +109,7 @@ public class DefenseClient implements ClientModInitializer
 
 		ClientPlayNetworking.registerGlobalReceiver(Payloads.EnableAfkPayload.ID, (payload, context) ->
 		{
-			if (!(context.client().currentScreen instanceof  AFKDefenseScreen)) context.client().setScreen(new AFKDefenseScreen(context.client().currentScreen));
+			if (!(context.client().screen instanceof AFKDefenseScreen)) context.client().setScreen(new AFKDefenseScreen(context.client().screen));
 			isAfk = true;
 			PlayerEntityAccess plr = (PlayerEntityAccess)context.player();
 			plr.defense$switchPvp(true);
@@ -122,17 +126,17 @@ public class DefenseClient implements ClientModInitializer
 			int version = buf.readVarInt();
 			if(version > Defense.VERSION_ID)
 			{
-				handler.onDisconnect(new LoginDisconnectS2CPacket(Defense.getServerErrorMessage(Defense.ErrorReason.CLIENT_OLDER)));
+				handler.onDisconnect(new DisconnectionDetails(Defense.getServerErrorMessage(Defense.ErrorReason.CLIENT_OLDER)));
 				return CompletableFuture.completedFuture(null);
 			}
 			else if(version < Defense.VERSION_ID)
 			{
-				handler.onDisconnect(new LoginDisconnectS2CPacket(Defense.getServerErrorMessage(Defense.ErrorReason.CLIENT_NEWER)));
+				handler.onDisconnect(new DisconnectionDetails(Defense.getServerErrorMessage(Defense.ErrorReason.CLIENT_NEWER)));
 				return CompletableFuture.completedFuture(null);
 			}
 			else
 			{
-				return CompletableFuture.completedFuture(new PacketByteBuf(Unpooled.EMPTY_BUFFER));
+				return CompletableFuture.completedFuture(new FriendlyByteBuf(Unpooled.EMPTY_BUFFER));
 			}
 		});
 
@@ -152,7 +156,7 @@ public class DefenseClient implements ClientModInitializer
 		{
 			Identifier gameruleId = payload.gameruleId();
 
-			if (gameruleId.equals(Gamerules.DEFENSE_DURATION_MINUTES.getId()))
+			if (gameruleId.equals(Gamerules.DEFENSE_DURATION_MINUTES.getIdentifier()))
 			{
 				int val = payload.value();
                 durationChange = Integer.compare(val, defenseDurationMinutes);
@@ -165,7 +169,7 @@ public class DefenseClient implements ClientModInitializer
 		{
 			Identifier gameruleId = payload.gameruleId();
 
-			if (gameruleId.equals(Gamerules.ALLOW_DEFENSE_KEYBIND.getId()))
+			if (gameruleId.equals(Gamerules.ALLOW_DEFENSE_KEYBIND.getIdentifier()))
 			{
 				allowDefenseKeybind = payload.value();
 			}
@@ -177,9 +181,9 @@ public class DefenseClient implements ClientModInitializer
 	 * @param player the player you want to check
 	 * @return {@code true} if the player is immune to PVP, {@code false} otherwise.
 	 */
-	public static boolean isPlayerImmune(PlayerEntity player)
+	public static boolean isPlayerImmune(Player player)
 	{
-		return isPlayerImmune(player.getUuid());
+		return isPlayerImmune(player.getUUID());
 	}
 
 	/**
@@ -189,11 +193,11 @@ public class DefenseClient implements ClientModInitializer
 	 */
 	public static boolean isPlayerImmune(UUID uuid)
 	{
-		if (uuid.equals(MinecraftClient.getInstance().player.getUuid())) return pvpOff;
+		if (uuid.equals(Minecraft.getInstance().player.getUUID())) return pvpOff;
 		return immunePlayers.contains(uuid);
 	}
 
-	public static SimpleOption<DefenseIcon> getDefenseIconOption()
+	public static OptionInstance<DefenseIcon> getDefenseIconOption()
 	{
 		return defenseIconOption;
 	}
@@ -205,7 +209,7 @@ public class DefenseClient implements ClientModInitializer
 	public static void tryRecordIconChange()
 	{
 		if (!defenseIconChanged) return;
-		MinecraftClient.getInstance().execute(() -> ClientPlayNetworking.send(new Payloads.RecordIconPayload(getDefenseIconOption().getValue().getId())));
+		Minecraft.getInstance().execute(() -> ClientPlayNetworking.send(new Payloads.RecordIconPayload(getDefenseIconOption().get().getId())));
 		defenseIconChanged = false;
 	}
 
@@ -214,9 +218,9 @@ public class DefenseClient implements ClientModInitializer
 	 * @param player the player you want to get the icon from
 	 * @return A {@code DefenseIcon}. If the player is not found, {@code DefenseIcon.DEFAULT} is returned.
 	 */
-	public static DefenseIcon getPlayerIcon(PlayerEntity player)
+	public static DefenseIcon getPlayerIcon(Player player)
 	{
-		return getPlayerIcon(player.getUuid());
+		return getPlayerIcon(player.getUUID());
 	}
 
 	/**
@@ -226,7 +230,7 @@ public class DefenseClient implements ClientModInitializer
 	 */
 	public static DefenseIcon getPlayerIcon(UUID player)
 	{
-		if (player.equals(MinecraftClient.getInstance().player.getUuid())) return getDefenseIconOption().getValue();
+		if (player.equals(Minecraft.getInstance().player.getUUID())) return getDefenseIconOption().get();
 		return playerIcons.getOrDefault(player, DefenseIcon.DEFAULT);
 	}
 
@@ -253,7 +257,7 @@ public class DefenseClient implements ClientModInitializer
 	 */
 	public static void requestImmediateAfkUpdate()
 	{
-		MinecraftClient.getInstance().execute(() -> ClientPlayNetworking.send(new Payloads.RequestAfkUpdatePayload()));
+		Minecraft.getInstance().execute(() -> ClientPlayNetworking.send(new Payloads.RequestAfkUpdatePayload()));
 		afkUpdateRequested = false;
 	}
 
@@ -283,11 +287,11 @@ public class DefenseClient implements ClientModInitializer
 		return getDefenseDurationMinutes() * 1200L;
 	}
 
-	public static Text getDefenseContinueText(PlayerEntityAccess plr)
+	public static Component getDefenseContinueText(PlayerEntityAccess plr)
 	{
 		int durationMinutes = getDefenseDurationMinutes();
-		Text text = Text.translatable("chat.immunity.continue", Defense.getMinutesText(durationMinutes));
-		return Texts.bracketed(text).styled(style -> style.withColor(Formatting.GREEN).withClickEvent(new CRunnableClickEvent(() -> plr.defense$switchPvp(true))).withHoverEvent(new HoverEvent.ShowText(text)));
+		Component text = Component.translatable("chat.immunity.continue", Defense.getMinutesText(durationMinutes));
+		return ComponentUtils.wrapInSquareBrackets(text).withStyle(style -> style.withColor(ChatFormatting.GREEN).withClickEvent(new CRunnableClickEvent(() -> plr.defense$switchPvp(true))).withHoverEvent(new HoverEvent.ShowText(text)));
 	}
 
 	private static boolean afkUpdateRequested = false;

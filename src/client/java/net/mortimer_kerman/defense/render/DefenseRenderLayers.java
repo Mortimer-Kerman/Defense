@@ -1,79 +1,79 @@
 package net.mortimer_kerman.defense.render;
 
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.RenderSetup;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
 
 import java.util.function.Function;
 
 public class DefenseRenderLayers
 {
-    public static RenderLayer getIconSolidDepth(Identifier texture)
+    public static RenderType getIconSolidDepth(Identifier texture)
     {
         return ICON_SOLID_DEPTH.apply(texture);
     }
 
-    public static RenderLayer getIconSolidNoDepth(Identifier texture)
+    public static RenderType getIconSolidNoDepth(Identifier texture)
     {
         return ICON_SOLID_NO_DEPTH.apply(texture);
     }
 
-    public static RenderLayer getIconTransparentDepth(Identifier texture)
+    public static RenderType getIconTransparentDepth(Identifier texture)
     {
         return ICON_TRANSPARENT_DEPTH.apply(texture);
     }
 
-    public static RenderLayer getIconTransparentNoDepth(Identifier texture)
+    public static RenderType getIconTransparentNoDepth(Identifier texture)
     {
         return ICON_TRANSPARENT_NO_DEPTH.apply(texture);
     }
 
-    private static final Function<Identifier, RenderLayer> ICON_SOLID_DEPTH = Util.memoize(
+    private static final Function<Identifier, RenderType> ICON_SOLID_DEPTH = Util.memoize(
             texture -> {
                 RenderSetup renderSetup = RenderSetup.builder(RenderPipelines.ENTITY_CUTOUT_NO_CULL)
-                        .texture("Sampler0", texture)
+                        .withTexture("Sampler0", texture)
                         .useLightmap()
                         .useOverlay()
-                        .crumbling()
-                        .outlineMode(RenderSetup.OutlineMode.AFFECTS_OUTLINE).build();
-                return RenderLayer.of("icon_solid_depth", renderSetup);
+                        .affectsCrumbling()
+                        .setOutline(RenderSetup.OutlineProperty.AFFECTS_OUTLINE).createRenderSetup();
+                return RenderType.create("icon_solid_depth", renderSetup);
             });
 
-    private static final Function<Identifier, RenderLayer> ICON_SOLID_NO_DEPTH = Util.memoize(
+    private static final Function<Identifier, RenderType> ICON_SOLID_NO_DEPTH = Util.memoize(
             texture -> {
                 RenderSetup renderSetup = RenderSetup.builder(DefenseRenderPipelines.ENTITY_CUTOUT_NO_CULL_ALWAYS_DEPTH)
-                        .texture("Sampler0", texture)
+                        .withTexture("Sampler0", texture)
                         .useLightmap()
                         .useOverlay()
-                        .crumbling()
-                        .outlineMode(RenderSetup.OutlineMode.AFFECTS_OUTLINE).build();
-                return RenderLayer.of("icon_solid_depth", renderSetup);
+                        .affectsCrumbling()
+                        .setOutline(RenderSetup.OutlineProperty.AFFECTS_OUTLINE).createRenderSetup();
+                return RenderType.create("icon_solid_depth", renderSetup);
             });
 
-    private static final Function<Identifier, RenderLayer> ICON_TRANSPARENT_DEPTH = Util.memoize(
+    private static final Function<Identifier, RenderType> ICON_TRANSPARENT_DEPTH = Util.memoize(
             (texture) -> {
-                RenderSetup renderSetup = RenderSetup.builder(RenderPipelines.RENDERTYPE_ITEM_ENTITY_TRANSLUCENT_CULL)
-                        .texture("Sampler0", texture)
+                RenderSetup renderSetup = RenderSetup.builder(RenderPipelines.ITEM_ENTITY_TRANSLUCENT_CULL)
+                        .withTexture("Sampler0", texture)
                         .useLightmap()
                         .useOverlay()
-                        .crumbling()
-                        .translucent()
-                        .outlineMode(RenderSetup.OutlineMode.AFFECTS_OUTLINE).build();
-                return RenderLayer.of("icon_transparent_depth", renderSetup);
+                        .affectsCrumbling()
+                        .sortOnUpload()
+                        .setOutline(RenderSetup.OutlineProperty.AFFECTS_OUTLINE).createRenderSetup();
+                return RenderType.create("icon_transparent_depth", renderSetup);
             });
 
-    private static final Function<Identifier, RenderLayer> ICON_TRANSPARENT_NO_DEPTH = Util.memoize(
+    private static final Function<Identifier, RenderType> ICON_TRANSPARENT_NO_DEPTH = Util.memoize(
             (texture) -> {
                 RenderSetup renderSetup = RenderSetup.builder(DefenseRenderPipelines.RENDERTYPE_ITEM_ENTITY_TRANSLUCENT_CULL_ALWAYS_DEPTH)
-                        .texture("Sampler0", texture)
+                        .withTexture("Sampler0", texture)
                         .useLightmap()
                         .useOverlay()
-                        .crumbling()
-                        .translucent()
-                        .outlineMode(RenderSetup.OutlineMode.AFFECTS_OUTLINE).build();
-                return RenderLayer.of("icon_solid_no_depth", renderSetup);
+                        .affectsCrumbling()
+                        .sortOnUpload()
+                        .setOutline(RenderSetup.OutlineProperty.AFFECTS_OUTLINE).createRenderSetup();
+                return RenderType.create("icon_solid_no_depth", renderSetup);
             });
 
     public static void init() { /*yes it is empty, yes it is normal*/ }

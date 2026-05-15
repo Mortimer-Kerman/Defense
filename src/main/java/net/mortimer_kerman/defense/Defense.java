@@ -1,6 +1,7 @@
 package net.mortimer_kerman.defense;
 
 import io.netty.buffer.Unpooled;
+
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -9,18 +10,19 @@ import net.fabricmc.fabric.api.networking.v1.ServerLoginNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
-import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Tameable;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.synchronization.SingletonArgumentInfo;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.rule.GameRules;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.OwnableEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.gamerules.GameRules;
+
 import net.mortimer_kerman.defense.argument.DefenseArgumentType;
 
 import java.util.HashMap;
@@ -44,23 +46,23 @@ public class Defense implements ModInitializer
 
 		Gamerules.RegisterGamerules();
 
-		ArgumentTypeRegistry.registerArgumentType(Identifier.of(MOD_ID, "template_defense_action"), DefenseArgumentType.class, ConstantArgumentSerializer.of(DefenseArgumentType::defenseAction));
+		ArgumentTypeRegistry.registerArgumentType(Identifier.fromNamespaceAndPath(MOD_ID, "template_defense_action"), DefenseArgumentType.class, SingletonArgumentInfo.contextFree(DefenseArgumentType::defenseAction));
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> Commands.DefenseCommand(dispatcher));
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> Commands.AfkCommand(dispatcher));
 
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
 		{
-			ServerPlayerEntity player = handler.getPlayer();
+			ServerPlayer player = handler.getPlayer();
 
-			GameRules gameRules = server.getOverworld().getGameRules();
-			int defenseDurationMinutes = gameRules.getValue(Gamerules.DEFENSE_DURATION_MINUTES);
-			boolean allowDefenseKeybind = gameRules.getValue(Gamerules.ALLOW_DEFENSE_KEYBIND);
+			GameRules gameRules = server.overworld().getGameRules();
+			int defenseDurationMinutes = gameRules.get(Gamerules.DEFENSE_DURATION_MINUTES);
+			boolean allowDefenseKeybind = gameRules.get(Gamerules.ALLOW_DEFENSE_KEYBIND);
 
 			server.execute(() ->
 			{
-				ServerPlayNetworking.send(player, new Payloads.GamerulePayloads.Integer(Gamerules.DEFENSE_DURATION_MINUTES.getId(), defenseDurationMinutes));
-				ServerPlayNetworking.send(player, new Payloads.GamerulePayloads.Boolean(Gamerules.ALLOW_DEFENSE_KEYBIND.getId(), allowDefenseKeybind));
+				ServerPlayNetworking.send(player, new Payloads.GamerulePayloads.Integer(Gamerules.DEFENSE_DURATION_MINUTES.getIdentifier(), defenseDurationMinutes));
+				ServerPlayNetworking.send(player, new Payloads.GamerulePayloads.Boolean(Gamerules.ALLOW_DEFENSE_KEYBIND.getIdentifier(), allowDefenseKeybind));
 
 				for (UUID playerUUID : immunePlayers) ServerPlayNetworking.send(player, new Payloads.NotifyPVPPayload(playerUUID, true));
 				for (UUID playerUUID : afkPlayers) ServerPlayNetworking.send(player, new Payloads.NotifyAfkPayload(playerUUID, true));
@@ -70,7 +72,7 @@ public class Defense implements ModInitializer
 
 		ServerPlayConnectionEvents.DISCONNECT.register(((handler, server) ->
 		{
-			UUID playerUUID = handler.getPlayer().getUuid();
+			UUID playerUUID = handler.getPlayer().getUUID();
 
 			if(immunePlayers.contains(playerUUID))
 			{
@@ -78,7 +80,7 @@ public class Defense implements ModInitializer
 				afkPlayers.remove(playerUUID);
 				server.execute(() ->
 				{
-					for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList())
+					for (ServerPlayer player : server.getPlayerList().getPlayers())
 					{
 						ServerPlayNetworking.send(player, new Payloads.NotifyPVPPayload(playerUUID, false));
 						ServerPlayNetworking.send(player, new Payloads.NotifyAfkPayload(playerUUID, false));
@@ -90,19 +92,19 @@ public class Defense implements ModInitializer
 		ServerPlayNetworking.registerGlobalReceiver(Payloads.RecordPVPPayload.ID, (payload, context) ->
 		{
 			MinecraftServer server = context.server();
-			ServerPlayerEntity sender = context.player();
+			ServerPlayer sender = context.player();
 
-			UUID playerUUID = sender.getUuid();
+			UUID playerUUID = sender.getUUID();
 			boolean pvpOff = payload.pvpOff();
 
 			if (pvpOff) immunePlayers.add(playerUUID);
 			else immunePlayers.remove(playerUUID);
 
-			sender.updateLastActionTime();
+			sender.resetLastActionTime();
 
 			server.execute(() ->
 			{
-				for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList())
+				for (ServerPlayer player : server.getPlayerList().getPlayers())
 				{
 					if (!sender.equals(player)) ServerPlayNetworking.send(player, new Payloads.NotifyPVPPayload(playerUUID, pvpOff));
 				}
@@ -112,16 +114,16 @@ public class Defense implements ModInitializer
 		ServerPlayNetworking.registerGlobalReceiver(Payloads.RecordIconPayload.ID, (payload, context) ->
 		{
 			MinecraftServer server = context.server();
-			ServerPlayerEntity sender = context.player();
+			ServerPlayer sender = context.player();
 
-			UUID playerUUID = sender.getUuid();
+			UUID playerUUID = sender.getUUID();
 			int iconID = payload.iconID();
 
 			playerIcons.put(playerUUID, iconID);
 
 			server.execute(() ->
 			{
-				for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList())
+				for (ServerPlayer player : server.getPlayerList().getPlayers())
 				{
 					if (!sender.equals(player)) ServerPlayNetworking.send(player, new Payloads.NotifyIconPayload(playerUUID, iconID));
 				}
@@ -130,9 +132,9 @@ public class Defense implements ModInitializer
 
 		ServerPlayNetworking.registerGlobalReceiver(Payloads.RequestAfkUpdatePayload.ID, (payload, context) ->
 		{
-			ServerPlayerEntity sender = context.player();
+			ServerPlayer sender = context.player();
 
-			UUID playerUUID = sender.getUuid();
+			UUID playerUUID = sender.getUUID();
 
 			if(afkPlayers.contains(playerUUID))
 			{
@@ -142,19 +144,19 @@ public class Defense implements ModInitializer
 
 				server.execute(() ->
 				{
-					for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList())
+					for (ServerPlayer player : server.getPlayerList().getPlayers())
 					{
 						ServerPlayNetworking.send(player, new Payloads.NotifyAfkPayload(playerUUID, false));
 					}
 				});
 			}
 
-			sender.updateLastActionTime();
+			sender.resetLastActionTime();
 		});
 
 		ServerLoginConnectionEvents.QUERY_START.register((handler, server, sender, synchronizer) ->
 		{
-			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer(5));
+			FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer(5));
 			buf.writeVarInt(VERSION_ID);
 			sender.sendPacket(Payloads.handshakeID, buf);
 		});
@@ -168,16 +170,16 @@ public class Defense implements ModInitializer
 		});
 	}
 
-	public static boolean isPlayerImmune(PlayerEntity player)
+	public static boolean isPlayerImmune(Player player)
 	{
-		return immunePlayers.contains(player.getUuid());
+		return immunePlayers.contains(player.getUUID());
 	}
 
 	public static boolean isEntityImmune(Entity entity, boolean petsProtected, boolean mountsProtected)
 	{
-		if (entity instanceof ServerPlayerEntity attackedPlayer && isPlayerImmune(attackedPlayer)) return true;
+		if (entity instanceof ServerPlayer attackedPlayer && isPlayerImmune(attackedPlayer)) return true;
 
-		if (petsProtected && entity instanceof Tameable pet)
+		if (petsProtected && entity instanceof OwnableEntity pet)
 		{
 			LivingEntity owner = pet.getOwner();
 			if (owner != null && isEntityImmune(owner, true, mountsProtected)) return true;
@@ -185,7 +187,7 @@ public class Defense implements ModInitializer
 
 		if (mountsProtected)
 		{
-			for (Entity passenger : entity.getPassengerList())
+			for (Entity passenger : entity.getPassengers())
 			{
 				if (passenger != null && isEntityImmune(passenger, petsProtected, true)) return true;
 			}
@@ -196,9 +198,9 @@ public class Defense implements ModInitializer
 
 	public static boolean isPlayerRelated(Entity entity, boolean petsProtected, boolean mountsProtected)
 	{
-		if (entity instanceof ServerPlayerEntity) return true;
+		if (entity instanceof ServerPlayer) return true;
 
-		if (petsProtected && entity instanceof Tameable pet)
+		if (petsProtected && entity instanceof OwnableEntity pet)
 		{
 			LivingEntity owner = pet.getOwner();
 			if (owner != null && isPlayerRelated(owner, true, mountsProtected)) return true;
@@ -206,7 +208,7 @@ public class Defense implements ModInitializer
 
 		if (mountsProtected)
 		{
-			for (Entity passenger : entity.getPassengerList())
+			for (Entity passenger : entity.getPassengers())
 			{
 				if (passenger != null && isPlayerRelated(passenger, petsProtected, true)) return true;
 			}
@@ -214,33 +216,33 @@ public class Defense implements ModInitializer
 		return false;
 	}
 
-	public static boolean isPlayerAfk(PlayerEntity player)
+	public static boolean isPlayerAfk(Player player)
 	{
-		return afkPlayers.contains(player.getUuid());
+		return afkPlayers.contains(player.getUUID());
 	}
 
-	public static void setPlayerAfk(ServerPlayerEntity player)
+	public static void setPlayerAfk(ServerPlayer player)
 	{
-		UUID playerUUID = player.getUuid();
+		UUID playerUUID = player.getUUID();
 
 		if (afkPlayers.contains(playerUUID)) return;
 
-		afkPlayers.add(player.getUuid());
+		afkPlayers.add(player.getUUID());
 
-		for (ServerPlayerEntity plr : player.getEntityWorld().getServer().getPlayerManager().getPlayerList())
+		for (ServerPlayer plr : player.level().getServer().getPlayerList().getPlayers())
 		{
 			ServerPlayNetworking.send(plr, new Payloads.NotifyAfkPayload(playerUUID, true));
 		}
 	}
 
-	public static Text getMinutesText(int minutes)
+	public static Component getMinutesText(int minutes)
 	{
-		if(minutes < 1) return Text.translatable("defense.minutes.lessthanone");
-		if(minutes == 1) return Text.translatable("defense.minutes.one");
-		return Text.translatable("defense.minutes.morethanone", minutes);
+		if(minutes < 1) return Component.translatable("defense.minutes.lessthanone");
+		if(minutes == 1) return Component.translatable("defense.minutes.one");
+		return Component.translatable("defense.minutes.morethanone", minutes);
 	}
 
-	public static Text getServerErrorMessage(ErrorReason reason)
+	public static Component getServerErrorMessage(ErrorReason reason)
 	{
 		String desc = switch (reason)
 		{
@@ -248,9 +250,9 @@ public class Defense implements ModInitializer
             case CLIENT_OLDER -> "You have an outdated version of the Defense mod!";
             case CLIENT_NEWER -> "You have a too recent version of the Defense mod!";
         };
-		Text version = Text.literal(MOD_VERSION).styled(style -> style.withUnderline(true));
-		Text url = Text.literal("https://modrinth.com/mod/defense").styled((style -> style.withColor(Formatting.GREEN)));
-		return Text.translatable(desc + " Please download the version %s from %s.", version, url);
+		Component version = Component.literal(MOD_VERSION).withStyle(style -> style.withUnderlined(true));
+		Component url = Component.literal("https://modrinth.com/mod/defense").withStyle((style -> style.withColor(ChatFormatting.GREEN)));
+		return Component.translatable(desc + " Please download the version %s from %s.", version, url);
 	}
 
 	public enum ErrorReason
@@ -261,6 +263,6 @@ public class Defense implements ModInitializer
 	}
 
 	public static Identifier idOf(String path) {
-		return Identifier.of(MOD_ID, path);
+		return Identifier.fromNamespaceAndPath(MOD_ID, path);
 	}
 }
